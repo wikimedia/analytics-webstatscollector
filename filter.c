@@ -57,13 +57,24 @@ bool check_wikimedia(char *language) {
 	return false;
 }
 
-/* IP addresses from which duplicate requests originate */
+/* IP addresses from which duplicate requests originate 
+* Correspondence with Mark Bergsma on IRC.
+* diederik: what is exactly the issue?
+* mark: squids requesting from eachother
+* diederik: 1) is this still an issue (mentioned on line 60)?
+* mark: only 208.80. and 91.198.174 are still relevant
+* removed IP blocks:
+* "145.97.39.",
+* "66.230.200.",
+* "211.115.107.",
+*/
 
-char *dupes[] = {"145.97.39.","66.230.200.",
-		"208.80.152.","208.80.153.",
-		"208.80.154.","208.80.155.",
-		"211.115.107.","91.198.174.",
-		NULL};
+char *dupes[] = {"208.80.152.",
+				"208.80.153.",
+				"208.80.154.",
+				"208.80.155.",
+				"91.198.174.",
+				NULL};
 
 bool check_ip(char *ip) {
 	char **prefix=dupes;
