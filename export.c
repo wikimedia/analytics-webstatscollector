@@ -20,7 +20,7 @@
 void dumpData(FILE *fd, DB *db) {
 	DBT key,data;
 	DBC *c;
-	
+
 	char *p,*project,*page;
 
 	struct wcstats *entry;
