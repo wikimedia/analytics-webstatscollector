@@ -1,0 +1,39 @@
+PACKAGE (0.2) lucid; urgency=low
+
+  [ Domas Mituzas ]
+  * remove some stuff that doesn't belong to source
+  * removing stuff
+  * remove svnignore too
+  * minor fixes, add serial number to format
+
+  [ Ævar Arnfjörð Bjarmason ]
+  * link to pthread since we use pthread_create
+  * #include <db.h> not <db4/db.h>, db.h is in /usr/include/db.h on e.g.
+    debian
+  * Free the bdb databases before exiting the program, this fixes the
+  * script that generates test data for the collector and flings it at
+
+  [ Domas Mituzas ]
+  * add squidlogs->collector filter, to sit between udp2log and log2udp
+  * avoid anchors in stats
+
+  [ Hampton Catlin ]
+  * Updating the webstatscollector filter method to handle mobile
+    requests specially. as per the spec discussed with domas and erikz
+
+  [ Tomasz Finc ]
+  * Fixing spacing and sync'ing with live copy
+  * lining up whitelist spacing
+  * missing semicolon
+
+  [ Domas Mituzas ]
+  * fix some segfaults (added by r67338) and jailing sequence (initial
+    code, touched by r67367), add apparmor profile
+
+ -- Diederik van Liere <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 16:08:42 -0400
+
+PACKAGE (0.1) UNRELEASED; urgency=low
+
+  * Initial release.
+
+ -- Diederik van Liere <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 15:15:39 -0400
