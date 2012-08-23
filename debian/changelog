@@ -1,4 +1,4 @@
-PACKAGE (0.2) lucid; urgency=low
+webstatscollector (0.2) lucid; urgency=low
 
   [ Domas Mituzas ]
   * remove some stuff that doesn't belong to source
@@ -30,10 +30,10 @@ PACKAGE (0.2) lucid; urgency=low
   * fix some segfaults (added by r67338) and jailing sequence (initial
     code, touched by r67367), add apparmor profile
 
- -- Diederik van Liere <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 16:08:42 -0400
+ -- Diederik van Liere (Wikimedia Foundation) <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 16:08:42 -0400
 
-PACKAGE (0.1) UNRELEASED; urgency=low
+webstatscollector (0.1) UNRELEASED; urgency=low
 
   * Initial release.
 
- -- Diederik van Liere <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 15:15:39 -0400
+ -- Diederik van Liere (Wikimedia Foundation) <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 15:15:39 -0400

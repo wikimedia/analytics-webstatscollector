@@ -1,17 +1,15 @@
-#! /bin/sh
 
 make clean
-rm Makefile
-rm Makefile.in
-rm config.status
-rm aclocal.m4
-rm -rf autom4te.cache
-rm configure
+#rm Makefile
+#rm Makefile.in
+#rm config.status
+#rm aclocal.m4
+#rm -rf autom4te.cache
+#rm configure
 
-aclocal \
-&& automake --gnu --add-missing \
-&& autoconf
-autoreconf -i
+aclocal 
+automake
+autoconf
 ./configure
 make
 

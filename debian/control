@@ -1,0 +1,17 @@
+Source: webstatscollector
+Section: devel
+Priority: optional
+Maintainer: Diederik van Liere (Wikimedia Foundation) <dvanliere@wikimedia.org>
+Build-Depends: debhelper (>=7.0.50~), autotools-dev, mime-support, mawk
+Standards-Version: 3.8.4
+Vcs-Git: git://gerrit.wikimedia.org/analytics/webstatscollector.git
+Vcs-browser: https://gerrit.wikimedia.org/r/gitweb?p=analytics/webstatscollector.git
+Homepage: http://www.mediawiki.org/wiki/Analytics/webstatscollector
+
+Package: webstatscollector
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdb4.6-dev (>= 4.6)
+Description: Webstatscollector counts pageviews by hour for all the major Wikimedia projects. 
+  Originally written by Domas Mituzas, webstatscollector consists of two components:
+  1) collector: a daemon running on port 3815 that receives messages from filter and stores it in Berkeley DB file.
+  2) filter: listens unsampled to udp2log and sends all pageviews to port 3815
