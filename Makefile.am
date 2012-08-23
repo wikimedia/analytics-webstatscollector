@@ -33,5 +33,5 @@ filter: filter.c
 export: collector.h export.c
 
 clean:
-	rm -f collector exporter
+	rm -f collector exporter filter
 

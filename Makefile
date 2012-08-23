@@ -95,7 +95,7 @@ AUTOMAKE = ${SHELL} /home/diederik/Development/webstatscollector/missing --run a
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g3 -O0 -Wall -pedantic -ldb -lpthread
+CFLAGS = -ldb -lpthread -pedantic -Wall
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -118,9 +118,6 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /usr/bin/ld -m elf_x86_64
 LDFLAGS = 
 LIBOBJS = 
-
-#AM_CFLAGS=-ldb -lpthread
-#AM_LDFLAGS=-ldb -lpthread
 LIBS = $(DEPS_LIBS)
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIPO = 
@@ -205,6 +202,7 @@ collector_SOURCES = collector.c collector.h export.c export.h
 filter_SOURCES = filter.c filter.h
 INCLUDES = $(DEPS_CFLAGS)
 AM_CPPFLAGS = $(DEPS_CFLAGS)
+ACLOCAL_AMFLAGS = -I m4
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -667,8 +665,6 @@ uninstall-am: uninstall-binPROGRAMS
 	uninstall-binPROGRAMS
 
 
-#AM_LDFLAGS=-ldb -lpthread
-
 #	CFLAGS = -g3 -O0 -Wall -pedantic
 #	CPPFLAGS = -g3 -O0 -Wall -pedantic
 	CFLAGS = -O3 $AM_LDFLAGS
@@ -685,7 +681,7 @@ filter: filter.c
 export: collector.h export.c
 
 clean:
-	rm -f collector exporter
+	rm -f collector exporter filter
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

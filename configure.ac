@@ -18,7 +18,7 @@ AC_PROG_MAKE_SET
 # NOTE: This is probably not the correct way to set CFLAGS, 
 # but Diederik and Otto had a hard time getting AM_CFLAGS 
 # to work correctly.
-CFLAGS="-ldb -lpthread"
+CFLAGS="-ldb -lpthread -pedantic -Wall"
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ldb':
