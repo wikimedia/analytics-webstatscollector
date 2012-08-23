@@ -5,9 +5,6 @@ bin_PROGRAMS = collector filter
 collector_SOURCES = collector.c collector.h export.c export.h
 filter_SOURCES = filter.c filter.h
 
-#AM_LDFLAGS=-ldb -lpthread
-
-
 if DEBUG
 	CFLAGS = -g3 -O0 -Wall -pedantic
 	CPPFLAGS = -g3 -O0 -Wall -pedantic
@@ -17,15 +14,11 @@ else
 endif
 
 
-CFLAGS = -g3 -O0 -Wall -pedantic -ldb -lpthread
-
-#AM_CFLAGS=-ldb -lpthread
-#AM_LDFLAGS=-ldb -lpthread
-
-
 LIBS = $(DEPS_LIBS)
 INCLUDES = $(DEPS_CFLAGS)
 AM_CPPFLAGS = $(DEPS_CFLAGS)
+
+ACLOCAL_AMFLAGS = -I m4
 
 
 all: collector filter
