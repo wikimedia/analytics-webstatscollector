@@ -14,7 +14,11 @@ AM_CONDITIONAL(DEBUG, test "$enable_debug" = yes)
 AC_PROG_CC
 AC_PROG_MAKE_SET
 
-
+# Need -ldb and -lpthread
+# NOTE: This is probably not the correct way to set CFLAGS, 
+# but Diederik and Otto had a hard time getting AM_CFLAGS 
+# to work correctly.
+CFLAGS="-ldb -lpthread"
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-ldb':
