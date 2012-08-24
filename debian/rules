@@ -11,3 +11,17 @@ export DH_VERBOSE=1
 
 %:
 	dh  $@
+
+#configure:
+#    ./configure
+
+#build:
+#    configure
+#    $(MAKE)
+
+#install:
+#    build
+#    dh_testdir
+#    dh_testroot
+#    dh_clean -k
+#    dh_installdirs

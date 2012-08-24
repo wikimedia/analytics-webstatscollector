@@ -1,0 +1,9 @@
+.deps/
+m4/
+*.o
+aclocal.m4
+autom4te.cache/
+filter
+collector
+config.log
+config.status

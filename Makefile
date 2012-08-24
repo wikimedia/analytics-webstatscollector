@@ -202,7 +202,6 @@ collector_SOURCES = collector.c collector.h export.c export.h
 filter_SOURCES = filter.c filter.h
 INCLUDES = $(DEPS_CFLAGS)
 AM_CPPFLAGS = $(DEPS_CFLAGS)
-ACLOCAL_AMFLAGS = -I m4
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -669,6 +668,8 @@ uninstall-am: uninstall-binPROGRAMS
 #	CPPFLAGS = -g3 -O0 -Wall -pedantic
 	CFLAGS = -O3 $AM_LDFLAGS
 	CPPFLAGS = -O3 $AM_LDFLAGS
+
+#ACLOCAL_AMFLAGS = -I m4
 
 all: collector filter
 

@@ -1,0 +1,12 @@
+.git
+.gitreview
+m4
+.deps
+autom4te.cache
+config.log
+aclocal.m4
+config.status
+*.o
+filter
+collector
+export
