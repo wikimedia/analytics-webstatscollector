@@ -1,0 +1,3 @@
+Installing webstatscollector using apt-get results in two binaries available:
+/usr/local/filter
+/usr/local/collector

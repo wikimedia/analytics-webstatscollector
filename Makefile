@@ -95,7 +95,7 @@ AUTOMAKE = ${SHELL} /home/diederik/Development/webstatscollector/missing --run a
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -ldb -lpthread -pedantic -Wall
+CFLAGS = -ldb -lpthread -pedantic -Wall -std=gnu99
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo

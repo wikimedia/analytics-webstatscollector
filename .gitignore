@@ -7,3 +7,13 @@ filter
 collector
 config.log
 config.status
+config.h.in*
+libtool
+depcomp
+missing
+config.sub
+config.guess
+install-sh
+ltmain.sh
+stamp-h1
+Makefile.in
