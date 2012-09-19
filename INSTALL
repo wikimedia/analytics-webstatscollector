@@ -5,6 +5,7 @@ Dependencies(these can be found in debian/ubuntu repository):
   * autoconf
   * libtool
   * perl
+  * socat (to run the tests)
 
 
 
