@@ -4,6 +4,7 @@
 AC_PREREQ([2.65])
 AC_INIT([webstatscollector], [0.2], [dvanliere@wikimedia.org])
 AM_INIT_AUTOMAKE
+#AM_INIT_AUTOMAKE([1.11 foreign no-define])
 LT_INIT
 AC_CONFIG_SRCDIR([export.c])
 AC_CONFIG_HEADERS([config.h])

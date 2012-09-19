@@ -1,4 +1,4 @@
-
+#!/bin/bash
 make clean
 #rm Makefile
 #rm Makefile.in
@@ -7,8 +7,10 @@ make clean
 #rm -rf autom4te.cache
 #rm configure
 
-aclocal 
-automake
+libtoolize --force # generate  ltmain.sh link etc..
+autoheader # generating config.in.h
+aclocal  
+automake --add-missing
 autoconf
 ./configure
 make

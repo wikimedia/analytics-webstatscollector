@@ -1,3 +1,13 @@
+
+Dependencies(these can be found in debian/ubuntu repository):
+
+  * automake
+  * autoconf
+  * libtool
+  * perl
+
+
+
 Installing webstatscollector using apt-get results in two binaries available:
 /usr/local/filter
 /usr/local/collector
