@@ -1,0 +1,7 @@
+amssq36.esams.wikimedia.org -1510149917 2012-01-25T18:41:25.356 54 0.0.152.111 TCP_MISS/504 3655 GET http://www.mediawiki.org/wiki/Manual:$wgLogo ANY_PARENT/91.198.174.42 text/html http://www.mediawiki.org/wiki/Manual:$wgLogo - Mozilla/5.0%20(X11;%20U;%20Linux%20i686;%20en-US;%20rv:1.9.2.18)%20Gecko/20110628%20Ubuntu/10.04%20(lucid)%20Firefox/3.6.18
+amssq37.esams.wikimedia.org -1569370944 2012-01-25T01:28:37.184 151 0.0.152.222 TCP_MISS/500 848 GET http: CARP/91.198.174.54 text/html http://es.wikipedia.org/w/index.php?title=Especial:Entrar&type=signup&returnto=Especial:Buscar&returntoquery=search%3DUnited+States+Army+Ordnance+Museum - Mozilla/4.0%20(compatible;%20MSIE%205.0;%20Windows%20NT;%20DigExt)
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://en.wikipedia.org/wiki/Main_Page NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+ssl3001 543381 2011-12-24T20:48:51.222 0.000 2002:6981:27e2::6981:27e2 FAKE_CACHE_STATUS/400 0 - http://ipv6and4.labs.wikimedia.org- NONE/- - - - -
+ssl3001 543381 2011-12-24T20:48:51.222 0.000 2002:6981:27e2::6981:15e2 FAKE_CACHE_STATUS/400 0 - http://ipv6and4.labs.wikimedia.org- NONE/- - - - -
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://en.wikipedia.org/wiki/Wikipedia:Teahouse NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+
