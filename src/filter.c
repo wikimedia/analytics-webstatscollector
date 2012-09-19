@@ -225,15 +225,6 @@ int main(int argc, char **argv) {
 	/* end of initialization */
 
 
-	retval = chroot("/tmp/");
-	if(retval==-1){
-		exit(-1);
-	}
-
-	retval =chdir("/");
-	if (retval == -1) {
-		exit(-1);
-	}
 	setgid(65534);
 	setgroups(1,gidlist);
 	setuid(65534);

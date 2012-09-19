@@ -4,7 +4,23 @@
 #include <stdio.h>
 #include <db.h>
 
-#define PERIOD 3600
+
+/**
+  * Note: 
+  *
+  *   Switch to DEBUG = 0 when compiling this for use in production.
+  *   DEBUG = 1 is just used for development and testing
+  *
+  */
+#define DEBUG 1
+
+#if DEBUG == 1
+  #define PERIOD 60
+#else
+  #define PERIOD 3600
+#endif
+
+
 #define PREFIX "dumps/"
 
 DB *db;
