@@ -56,6 +56,10 @@ int main(int ac, char **av) {
 	int r;
 	int retval;
 
+        #if DEBUG == 1
+          fprintf(stderr,"Warning! =>  DEBUG=1\n");
+        #endif
+
 	/* Socket variables */
 	int s, exp;
 	u_int yes=1;

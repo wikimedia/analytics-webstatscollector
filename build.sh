@@ -7,6 +7,14 @@ make clean
 #rm -rf autom4te.cache
 #rm configure
 
+DUMPS_DIR="dumps"
+
+if [ ! -d "./$DUMPS_DIR" ]; then
+  echo -e "Creating dumps/ directory because it was not found...\n"
+  mkdir $DUMPS_DIR;
+fi
+
+
 libtoolize --force # generate  ltmain.sh link etc..
 autoheader # generating config.in.h
 aclocal  

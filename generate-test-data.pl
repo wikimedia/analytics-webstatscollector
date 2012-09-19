@@ -7,7 +7,7 @@ use IO::Socket::INET;
 
 my $socket = IO::Socket::INET->new(
     PeerAddr => 'localhost:3815',
-    Proto    => 'tcp',
+    Proto    => 'udp',
 ) or die "Can't open socket";
 
 # This is here because the collector keeps closing my connection, so I
@@ -27,7 +27,7 @@ while (1)
     my $bytes   = 10 + int rand 2**8;
     my $page    = 'Foo';
 
-    my $msg = sprintf "%d %s %d %s\n", $serial, 'iswiki', $bytes, $page;
+    my $msg = sprintf "%d %s %d %d %s\n", $serial, 'iswiki', 1, $bytes, $page;
 
     print $msg;
     $socket->print($msg);
