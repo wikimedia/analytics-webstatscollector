@@ -5,3 +5,9 @@ ssl3001 543381 2011-12-24T20:48:51.222 0.000 2002:6981:27e2::6981:27e2 FAKE_CACH
 ssl3001 543381 2011-12-24T20:48:51.222 0.000 2002:6981:27e2::6981:15e2 FAKE_CACHE_STATUS/400 0 - http://ipv6and4.labs.wikimedia.org- NONE/- - - - -
 sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://en.wikipedia.org/wiki/Wikipedia:Teahouse NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
 
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://wikimediafoundation.org/wiki/Wikipedia:Teahouse NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://en.planet.wikimedia.org/atom.xml NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://blog.wikimedia.org/2012/09/18/wikimedia-highlights-august-2012/ NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://wikimediafoundation.org/wiki/Wikimedia_ha_bisogno_del_tuo_aiuto NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)
+sq18.wikimedia.org 1715898 1169499304.066 0 127.0.0.1 TCP_MEM_HIT/200 13208 GET http://wikimediafoundation.org/negative NONE/- text/html - - Mozilla/4.0%20(compatible;%20MSIE%206.0;%20Windows%20NT%205.1;%20.NET%20CLR%201.1.4322)

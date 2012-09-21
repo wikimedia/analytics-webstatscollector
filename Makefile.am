@@ -31,6 +31,7 @@ collector: src/collector.h src/collector.c src/export.c export.o
 filter: src/filter.c
 	cc -o filter src/filter.c
 
+
 export.o: src/collector.h src/export.c
 	cc -c -o export.o src/export.c
 
