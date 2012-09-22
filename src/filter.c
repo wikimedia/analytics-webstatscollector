@@ -212,12 +212,9 @@ void explode_url(char *url,url_s *u) {
     strcpy(u->dir,hostname_iter);
     if(strncmp(u->dir,"/wiki/",6)==0) {
       u->has_title = true;
-      fprintf(stderr,"[!!] len(u->title)=%d\n",strlen(u->title));
-      fprintf(stderr,"[!!] len(u->dir)=%d\n",strlen(u->dir));
 
       strcpy(u->title,u->dir+6);
-      decode_title(u->title); //optional, can be removed
-      fprintf(stderr,"[!!] after sigsegv strcpy\n");
+      decode_title(u->title); //optional, can be removed, this just turns titles like %B5%EF  into readable characters
     };
   };
 
