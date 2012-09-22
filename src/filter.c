@@ -64,7 +64,7 @@ struct info {
 typedef struct {
   bool has_dir;
   bool has_title;
-  char dir[2000];
+  char dir[10000];
   char title[2000];
 
   char host_parts[30][200];
@@ -86,11 +86,9 @@ bool check_wikimedia(char *language) {
   * The following one-liner produces the lookup table
   * 
   * perl -e '@lookup=map { 0+$_; } split(//,0 x 255); $lookup[ord("$_")] = $_ for 0..9; $lookup[ord("$_")] = ord("$_")-ord("A")+10 for "A".."F"; $lookup[ord("$_")] = ord("$_")-ord("a")+10 for "a".."f";    print join(",",@lookup);  '
-  *
+ *
 */
 int decode_hex2dec[256] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,9,0,0,0,0,0,0,0,10,11,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,11,12,13,14,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-#define decode_title_lookup(first_char,second_char)  16*first_char
 
 /* decode html url encoding in title inplace */
 
