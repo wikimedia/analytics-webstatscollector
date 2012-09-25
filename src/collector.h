@@ -1,6 +1,9 @@
 /* Collector structures and some headers and some data */
 /* $Id: collector.h 12318 2005-12-31 15:34:46Z midom $ */
 
+#ifndef __COLLECTOR_H
+#define __COLLECTOR_H
+
 #include <stdio.h>
 #include <db.h>
 
@@ -20,6 +23,8 @@
   #define PERIOD 3600
 #endif
 
+#include "export.h"
+
 
 #define PREFIX "dumps/"
 
@@ -32,10 +37,13 @@ struct wcstats {
 	unsigned long long wc_bytes;
 };
 
-void dumpData(FILE *, DB *);
+//void dumpData(FILE *, DB *);
 
 struct dumperjob {
 	char *prefix;
 	DB *db;
 	time_t time;
+        char db_to_delete[100];
 };
+
+#endif

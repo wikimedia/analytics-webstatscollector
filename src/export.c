@@ -21,6 +21,12 @@ void dumpData(FILE *fd, DB *db) {
 	DBT key,data;
 	DBC *c;
 
+        #if USE_UTF8 == 1
+          char *toCode="UTF8"; // <======= this is what I want to convert it to
+          /*char *fromCode="ISO-LATIN-1";//ISO-8859-1";*/
+          char *fromCode="ASCII";// <===== I presume after removing % and converting from hex to dec I will get ASCII encoding
+        #endif
+
 	char *p,*project,*page;
 
 	struct wcstats *entry;
@@ -29,6 +35,14 @@ void dumpData(FILE *fd, DB *db) {
 	bzero(&data,sizeof(data));
 	
 	db->cursor(db,NULL,&c,0);
+
+
+        #if USE_UTF8 == 1
+          iconv_t it=iconv_open(toCode, fromCode);
+        #endif
+
+
+        // ok so what happens is
 	while(c->c_get(c, &key, &data, DB_NEXT )==0) {
 		entry=data.data;
 		p=key.data;
@@ -39,10 +53,43 @@ void dumpData(FILE *fd, DB *db) {
 		page=p;
 		
 		/* Get EVENT */
-		fprintf(fd,"%s %s %llu %llu\n",
-				project,(page?page:"-"),
-				entry->wc_count, entry->wc_bytes);
-	}
+                #if USE_UTF8 == 1
+                   //over here is the conversion to utf8, the
+                   // line that's supposed to go in dumps/pagecounts..  is formatted here
+                   // and then converted to UTF8 because 
+                    char result[10000];
+                    char source[10000];
+                    if(it!=(iconv_t)-1) {
+
+                      strcpy(result,"    ");
+                      sprintf(source,"%s %s %llu %llu\n",
+                              project,(page?page:"-"),
+                              entry->wc_count, entry->wc_bytes);
+                      size_t inbytesleft = strlen(source);
+                      size_t outbytesleft = inbytesleft*6;
+                      if(iconv(it,&source,&inbytesleft,&result,&outbytesleft)!=-1) {
+                        // all ok, ready to write to file
+                        fprintf(fd,"%s",result);
+                      } else {
+                        perror("iconv()");
+                      };
+
+                    } else {
+                      perror("iconv_open()");
+                    };
+                    
+                #else
+                    fprintf(fd,"%s %s %llu %llu\n",
+                            project,(page?page:"-"),
+                            entry->wc_count, entry->wc_bytes);
+
+                #endif
+	};
+
+
+        #if USE_UTF8 == 1
+          iconv_close(it);
+        #endif
 	c->c_close(c);
 }
 

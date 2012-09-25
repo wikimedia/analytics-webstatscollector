@@ -15,6 +15,28 @@
  The general workflow of webstatscollector is as follows:
  squids -> udp2log -> filter -> log2udp -> collector -> files
 
+
+
+ Control flow:
+
+   This is an UDP server which accepts connections.
+   It receives data as space separated lines which contain log data.
+   Basically, it counts request sizes per project&title and per project.
+   These counts are stored in 2 Berkeley DB databases on disk.
+   One is called db and the other aggr (and they are stored on disk in the files and the filenames for these files are
+                                       generated based on the time they were created, see generate_new_db_name )
+
+   Each PERIOD seconds it will fire up a SIGALRM which causes the poll in the main loop to return with EINTR
+   and causes control flow to enter produceDump(..) which will swap the existing 2 dbs with two new empty dbs and it will fire up two 
+   threads(one for each old db) which will call will call dumpData(..) and inside dumpData, there is a loop which iterates through 
+   all the rows in the DB and writes pagecounts and projectcounts files on disk.
+
+ Developing:
+
+   In order to develop, you can start up you can compile everything with  ./build.sh
+   and then run   cat example2.log | ./filter | nc -u 127.0.0.1 3815
+   Make sure you have a dumps directory.
+
 */
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -33,7 +55,30 @@
 #include <pthread.h>
 #include "collector.h"
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <stdbool.h>
 
+
+#define FILENAME_DB_DB    ".temp.db.%d.db"
+#define FILENAME_DB_AGGR  ".temp.aggr.%d.db"
+
+char old_filename_db[  100];
+char old_filename_aggr[100];
+
+void print_error(int error){
+	char *msg = strerror(error);
+	fprintf(stderr,"Encountered error:%s\n", msg);
+}
+
+inline char *generate_new_db_name(char *where_to_write,char *dbname) {
+  if(!(dbname && where_to_write)) {
+    fprintf(stderr,"Error: generate_new_db_name");
+    exit(-2);
+  };
+  sprintf(where_to_write,".temp.%s.%d.db",dbname,time(NULL));
+
+  return where_to_write;
+}
 
 void hup();
 void alarmed();
@@ -50,6 +95,22 @@ void increaseStatistics(DB *, char *, struct wcstats * );
 
 int needdump=0;
 
+
+bool directory_exists(char *dname) {
+  struct stat st;
+  bool ret;
+
+  if (stat(dname,&st) != 0) {
+    return false;
+  }
+
+  ret = S_ISDIR(st.st_mode);
+  if(!ret)
+    errno = ENOTDIR;
+  return ret;
+}
+
+
 int main(int ac, char **av) {
 	ssize_t l;
 	char buf[2000];
@@ -59,6 +120,15 @@ int main(int ac, char **av) {
         #if DEBUG == 1
           fprintf(stderr,"Warning! =>  DEBUG=1\n");
         #endif
+
+
+        /* check if dump directory exists */
+        if(!directory_exists(PREFIX)) {
+          char error_msg[1000];
+          sprintf(error_msg,"Error: directory %s not present, create one\n",PREFIX);
+          fprintf(stderr,error_msg);
+          exit(-1);
+        };
 
 	/* Socket variables */
 	int s, exp;
@@ -101,8 +171,8 @@ int main(int ac, char **av) {
 		fds[0].fd = s; fds[0].events |= POLLIN;
 		fds[1].fd = exp, fds[1].events |= POLLIN;
 
-		db=initEmptyDB();
-		aggr=initEmptyDB();
+		db=initEmptyDB(   generate_new_db_name(old_filename_db  ,"db"  )  );
+		aggr=initEmptyDB( generate_new_db_name(old_filename_aggr,"aggr")  );
 
 		signal(SIGALRM,alarmed);
 		signal(SIGHUP,hup);
@@ -145,10 +215,6 @@ int main(int ac, char **av) {
 	return(0);
 }
 
-void print_error(int error){
-	char *msg = strerror(error);
-	fprintf(stderr,"Encountered error:%s\n", msg);
-}
 
 /* Decides what to do with incoming UDP message */
 void handleMessage(char *buf,ssize_t l) {
@@ -158,14 +224,23 @@ void handleMessage(char *buf,ssize_t l) {
 	char keytext[1200];
 	int r;
 
-	unsigned long long serial;
+
+
+        /** 
+          * serial is not used in collector, it's used just for the generate-test-data.pl
+          * for debugging purposes
+          *
+        */
+
+        unsigned long long serial; 
 
 	struct wcstats incoming;
-	/* project count bytesize page */
 
+	/* project count bytesize page */
 	const char msgformat[]="%llu %127s %llu %llu %1023[^\n]";
 
-	/* field 1: unsigned long serial
+	/*
+         * field 1: serial number(just for debugging)
 	 * field 2: project title with a max of 127 bytes excluding the '\0'
 	 * field 3: unsigned long count, by default 1
 	 * field 4: unsigned long size of http request
@@ -184,7 +259,7 @@ void handleMessage(char *buf,ssize_t l) {
 			truncatedb();
 			return;
 		}
-		printf("Got the message: %s.\n", p);
+		printf("Got the message: [%s]\n", p);
 		bzero(&incoming,sizeof(incoming));
 		r=sscanf(p,msgformat,&serial,(char *)&project,
 			&incoming.wc_count,
@@ -201,18 +276,22 @@ void handleMessage(char *buf,ssize_t l) {
 }
 
 /* Create empty database object - creates file-system backed anonymous BDB handle */
-DB * initEmptyDB() {
+DB * initEmptyDB(char *db_filename) {
 	/* Do note - this isn't using global 'db' object */
 	int retval;
 	DB *db;
-	fprintf(stderr,"Creating db's\n");
+
+
 	retval = db_create(&db,NULL,0);
+        if(retval!=0) {
+          print_error(retval);
+        };
 	db->set_cachesize(db, 0, 1024*1024*1024, 0);
-	retval =db->open(db,NULL,".temp.db",NULL,DB_BTREE,DB_CREATE|DB_TRUNCATE,0);
-	if (retval==-1){
-		print_error(retval);
-	}
-	unlink(".temp.db");
+	retval =db->open(db,NULL,db_filename,NULL,DB_BTREE,DB_CREATE|DB_TRUNCATE,0);
+        if (retval==-1){
+          print_error(retval);
+        };
+
 	return db;
 }
 
@@ -261,6 +340,15 @@ void statsDumper(struct dumperjob * job) {
 	fclose(outfile);
 	rename(tfilename,filename);
 	db->close(db,DB_NOSYNC);
+
+        #if DEBUG==1
+          fprintf(stderr,"deleting file %s\n",job->db_to_delete);
+        #endif
+
+
+        // delete the database that has just been dumped to disk through dumpData
+        unlink(job->db_to_delete);
+
 }
 
 /* The dumps stuff */
@@ -275,34 +363,45 @@ void produceDump() {
 	static struct dumperjob dumperJob, aggrDumperJob;
 	DB *olddb,*oldaggr;
 
-	pthread_t dumper,aggrdumper;
+	pthread_t thread_dumper,thread_aggrdumper;
 	time_t dumptime=0;
 
+	needdump=0;
 	time(&dumptime);
 
 	olddb=db;
 	oldaggr=aggr;
 
-	fprintf(stderr, "Creating DB\n");
-	db=initEmptyDB();
-	aggr=initEmptyDB();
-	fprintf(stderr,"Finished creating DB\n");
+        /* after we've unlinked the old dbs we create new ones which take their place for the upcoming produceDump call*/
+
 
 	dumperJob.prefix= PREFIX "pagecounts";
 	dumperJob.db=olddb;
 	dumperJob.time=dumptime;
+        strcpy(dumperJob.db_to_delete,old_filename_db);
 
-	pthread_create(&dumper,NULL,(void *)statsDumper, (void *)&dumperJob);
+	pthread_create(&thread_dumper,NULL,(void *)statsDumper, (void *)&dumperJob);
 
 	aggrDumperJob.prefix= PREFIX "projectcounts";
 	aggrDumperJob.db = oldaggr;
 	aggrDumperJob.time=dumptime;
+        strcpy(aggrDumperJob.db_to_delete,old_filename_aggr);
 
-	pthread_create(&aggrdumper,NULL,(void *)statsDumper,(void *)&aggrDumperJob);
-	needdump=0;
+	pthread_create(&thread_aggrdumper,NULL,(void *)statsDumper,(void *)&aggrDumperJob);
 	alarm(PERIOD-(dumptime%PERIOD));
-	printf("ALL IS FINE\n");
 
+        #if DEBUG==1
+          fprintf(stderr, "Creating DB\n");
+        #endif
+
+        generate_new_db_name(old_filename_db  ,"db"   );
+	db  =initEmptyDB( old_filename_db   );
+        generate_new_db_name(old_filename_aggr,"aggr" );
+	aggr=initEmptyDB( old_filename_aggr );
+
+        #if DEBUG==1
+          fprintf(stderr,"Finished creating DB\n");
+        #endif
 }
 
 /* TCP connection handling logic - unsafe dump of data in DB - should be avoided at large datasets */

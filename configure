@@ -742,7 +742,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_unique_file="export.c"
+ac_unique_file="src/export.c"
 ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS

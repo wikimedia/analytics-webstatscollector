@@ -10,3 +10,4 @@ config.status
 filter
 collector
 export
+example2.log
