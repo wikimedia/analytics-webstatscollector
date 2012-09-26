@@ -1,11 +1,11 @@
 #!/bin/bash
 make clean
-#rm Makefile
-#rm Makefile.in
-#rm config.status
-#rm aclocal.m4
-#rm -rf autom4te.cache
-#rm configure
+rm Makefile
+rm Makefile.in
+rm config.status
+rm aclocal.m4
+rm -rf autom4te.cache
+rm configure
 
 DUMPS_DIR="dumps"
 
@@ -20,6 +20,7 @@ autoheader # generating config.in.h
 aclocal  
 automake --add-missing
 autoconf
+#perl -pi -e 's/export\.c/src\/export.c/g' configure
 ./configure
 make
 

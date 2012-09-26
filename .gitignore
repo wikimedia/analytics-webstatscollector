@@ -17,3 +17,13 @@ install-sh
 ltmain.sh
 stamp-h1
 Makefile.in
+.temp.aggr.*
+.temp.db.*
+Makefile
+Makefile.am.new
+"\\"
+dumps/
+filter.sh
+serial
+small_source.txt
+source.txt

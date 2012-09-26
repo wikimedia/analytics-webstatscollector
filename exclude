@@ -11,3 +11,5 @@ filter
 collector
 export
 example2.log
+dumps/*
+.temp*

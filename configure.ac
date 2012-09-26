@@ -5,10 +5,11 @@ AC_PREREQ([2.65])
 AC_INIT([webstatscollector], [0.2], [dvanliere@wikimedia.org])
 AM_INIT_AUTOMAKE
 LT_INIT
-AC_CONFIG_SRCDIR([export.c])
+AC_CONFIG_SRCDIR([src/export.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AM_CONDITIONAL(DEBUG, test "$enable_debug" = yes)
+
 
 # Checks for programs.
 AC_PROG_CC
