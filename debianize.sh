@@ -2,7 +2,7 @@
 
 export DEBFULLNAME="Diederik van Liere"
 
-VERSION=`git describe | awk -F'-g[0-9a-fA-F]+' '{print $1}'`
+VERSION=`git describe | awk -F'-g[0-9a-fA-F]+' '{print $1}' | sed -e 's/\-/./g' `
 MAIN_VERSION=`git describe --abbrev=0`
 
 tar -cvf webstatscollector.tar --exclude-from=exclude .
@@ -30,7 +30,35 @@ rm README.Debian dirs
 cd ..
 dpkg-buildpackage -v${VERSION}
 cd ..
-dpkg-deb --contents webstatscollector_${MAIN_VERSION}_amd64.deb
-lintian webstatscollector_${MAIN_VERSION}_amd64.deb
-mv webstatscollector_${MAIN_VERSION}_amd64.deb webstatscollector_${VERSION}_amd64.db
+
+
+ARCHITECTURE=`uname -m`
+ARCH_i686="i386"
+ARCH_x86_64="amd64"
+ARCH_SYS=""
+
+if [ $ARCHITECTURE == "i686" ]; then 
+  ARCH_SYS=$ARCH_i686
+elif [ $ARCHITECTURE != "x86_64" ]; then 
+  ARCH_SYS="amd64"
+else
+  echo -e  $RED"Sorry, only i686 and x86_64 architectures are supported."$ENDCOLOR
+  sleep 5
+  exit 1
+fi
+
+
+PACKAGE_NAME_VERSION=webstatscollector_${VERSION}_$ARCH_SYS.deb
+PACKAGE_NAME_MAIN_VERSION=webstatscollector_${MAIN_VERSION}_${ARCH_SYS}.deb
+
+
+
+dpkg-deb --contents ${PACKAGE_NAME_MAIN_VERSION}
+
+echo -e "Linting package ${PACKAGE_NAME_MAIN_VERSION} ...\n"
+lintian ${PACKAGE_NAME_MAIN_VERSION}
+mv ${PACKAGE_NAME_MAIN_VERSION} ${PACKAGE_NAME_VERSION}
+
+
+
 
