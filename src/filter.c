@@ -363,13 +363,15 @@ bool check_project(struct info *in) {
 
 int main(int argc, char **argv) {
 	int c;
-	int argv_test = 0;
+	int argv_debug = 0;
+        int argv_bot   = 1;
 	int retval;
 	static struct option long_options[] = {
-			{"version" , no_argument , 0 , 'v'},
-			{"help"    , no_argument , 0 , 'h'},
-			{"test"    , no_argument , 0 , 't'},
-			{0         , 0           , 0 ,  0 }
+			{"version" , no_argument  , 0 , 'v'},
+			{"help"    , no_argument  , 0 , 'h'},
+			{"debug"   , no_argument  , 0 , 'd'},
+			{"nobot"   , no_argument  , 0 , 'n'},
+			{0         , 0            , 0 ,  0 }
 	};
 
 	char *url;
@@ -382,16 +384,31 @@ int main(int argc, char **argv) {
 
 	signal(SIGINT, signal_callback_handler);
 
-	while((c = getopt_long(argc, argv, "tvh", long_options, NULL)) != -1) {
+	while((c = getopt_long(argc, argv, "dvhn", long_options, NULL)) != -1) {
 		switch(c)
 			{
-		case 't':
-			argv_test = 1;
+		case 'd':
+			argv_debug = 1;
 			break;
                 case 'v':
                         printf("\nWebstatscollector - Filter\nVersion=%s\n\n",VERSION);
                         exit(0);
                 case 'h':
+                        printf("Usage: filter [OPTIONS]");
+                        printf("\n");
+                        printf("  -v, --version        Print the version of filter\n");
+                        printf("  -h, --help           display this help and exit\n");
+                        printf("  -d, --debug          Run filter with debugging turned on\n");
+                        printf("  -n, --nobot          Turn off detection\n");
+                        printf("\n");
+                        printf("Filter takes lines from from squid log files on STDIN and extracts the relevant data for\n");
+                        printf("for collector, so it is to be used in conjunction with collector\n");
+                        printf("\n");
+                        exit(0);
+                case 'n':
+                        argv_bot = 0;
+                        fprintf(stderr,"Running with bot detection turned off\n");
+                        break;
 		default:
 			break;
 			}
@@ -421,11 +438,11 @@ int main(int argc, char **argv) {
 					FIELD; /* Sequence number */
 					FIELD; /* timestamp */
 					FIELD; /* Request service time in ms */
-		info.ip=	FIELD; /* IP address! */
+		info.ip=                FIELD; /* IP address! */
 					FIELD; /* status */
-		info.size=  FIELD; /* object size */
+		info.size=              FIELD; /* object size */
 					FIELD; /* Request method */
-		url=		FIELD; /* full url */
+		url=                    FIELD; /* full url */
 					FIELD; /* Squid hierarchy status, peer IP */
 					FIELD; /* MIME content type */
 					FIELD; /* Referer header */
@@ -434,25 +451,27 @@ int main(int argc, char **argv) {
 
 		if (!parse_url(url,&info,&u)) {
 			continue;
-                }
+                };
 		if (!check_ip(info.ip)) {
 			continue;
-                }
+                };
 		if (!check_project(&info)) {
 			continue;
-                }
-		if (user_agent_is_bot(crawlers, ua)) {
-			if (argv_test){
-				printf("1000 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
-			} else {
-				printf("1 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
-			}
-		}
-		if (argv_test) {
-			printf("1001 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
-		} else {
-			printf("1 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
-		}
+                };
+
+                if (argv_bot && user_agent_is_bot(crawlers, ua)) {
+                  if (argv_debug){
+                    printf("1000 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
+                  } else {
+                    printf("1 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
+                  }
+                } else {
+                  if (argv_debug) {
+                    printf("1001 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
+                  } else {
+                    printf("1 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
+                  };
+                };
 
 	}
 	return 0;
