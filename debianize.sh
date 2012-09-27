@@ -37,9 +37,9 @@ ARCH_i686="i386"
 ARCH_x86_64="amd64"
 ARCH_SYS=""
 
-if [ $ARCHITECTURE == "i686" ]; then 
+if [ $ARCHITECTURE == "i686" ]; then
   ARCH_SYS=$ARCH_i686
-elif [ $ARCHITECTURE != "x86_64" ]; then 
+elif [ $ARCHITECTURE == "x86_64" ]; then
   ARCH_SYS="amd64"
 else
   echo -e  $RED"Sorry, only i686 and x86_64 architectures are supported."$ENDCOLOR
