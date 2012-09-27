@@ -41,6 +41,7 @@ char *_sep, *_lasttok, *_firsttok;
 * "211.115.107.",
 */
 
+char *VERSION="development-placeholder-version";
 char *dupes[] = {"208.80.152.",
                  "208.80.153.",
                  "208.80.154.",
@@ -359,13 +360,16 @@ bool check_project(struct info *in) {
 	return false;
 }
 
+
 int main(int argc, char **argv) {
 	int c;
-	int test = 0;
+	int argv_test = 0;
 	int retval;
 	static struct option long_options[] = {
-			{"test", no_argument, 0, 't'},
-			{0,0,0,0}
+			{"version" , no_argument , 0 , 'v'},
+			{"help"    , no_argument , 0 , 'h'},
+			{"test"    , no_argument , 0 , 't'},
+			{0         , 0           , 0 ,  0 }
 	};
 
 	char *url;
@@ -378,13 +382,16 @@ int main(int argc, char **argv) {
 
 	signal(SIGINT, signal_callback_handler);
 
-	while((c = getopt_long(argc, argv, "t", long_options, NULL)) != -1) {
+	while((c = getopt_long(argc, argv, "tvh", long_options, NULL)) != -1) {
 		switch(c)
 			{
 		case 't':
-			test = 1;
+			argv_test = 1;
 			break;
-
+                case 'v':
+                        printf("\nWebstatscollector - Filter\nVersion=%s\n\n",VERSION);
+                        exit(0);
+                case 'h':
 		default:
 			break;
 			}
@@ -435,13 +442,13 @@ int main(int argc, char **argv) {
 			continue;
                 }
 		if (user_agent_is_bot(crawlers, ua)) {
-			if (test){
+			if (argv_test){
 				printf("1000 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
 			} else {
 				printf("1 %s%s_bot 1 %s %s\n",info.language, info.suffix, info.size, info.title);
 			}
 		}
-		if (test) {
+		if (argv_test) {
 			printf("1001 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
 		} else {
 			printf("1 %s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);

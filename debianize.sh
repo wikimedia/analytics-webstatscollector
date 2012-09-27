@@ -16,6 +16,10 @@ tar -C webstatscollector-${MAIN_VERSION} -xvf webstatscollector.tar
 rm webstatscollector-${MAIN_VERSION}.orig.tar.gz
 
 cd webstatscollector-${MAIN_VERSION}
+
+VERSION=$VERSION perl -pi -e 's/VERSION=".*";/VERSION="$ENV{VERSION}";/' src/filter.c
+VERSION=$VERSION perl -pi -e 's/VERSION=".*";/VERSION="$ENV{VERSION}";/' src/collector.c
+
 mkdir m4
 dh_make -c gpl2 -e dvanliere@wikimedia.org -s --createorig -p webstatscollector_${VERSION}
 cd debian
@@ -42,15 +46,13 @@ if [ $ARCHITECTURE == "i686" ]; then
 elif [ $ARCHITECTURE == "x86_64" ]; then
   ARCH_SYS="amd64"
 else
-  echo -e  $RED"Sorry, only i686 and x86_64 architectures are supported."$ENDCOLOR
-  sleep 5
+  echo -e  "Sorry, only i686 and x86_64 architectures are supported.\n"
   exit 1
 fi
 
 
 PACKAGE_NAME_VERSION=webstatscollector_${VERSION}_$ARCH_SYS.deb
 PACKAGE_NAME_MAIN_VERSION=webstatscollector_${MAIN_VERSION}_${ARCH_SYS}.deb
-
 
 
 dpkg-deb --contents ${PACKAGE_NAME_MAIN_VERSION}
