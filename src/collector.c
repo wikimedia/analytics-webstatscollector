@@ -26,7 +26,7 @@
    One is called db and the other aggr (and they are stored on disk in the files and the filenames for these files are
                                        generated based on the time they were created, see generate_new_db_name )
 
-   Each PERIOD seconds it will fire up a SIGALRM which causes the poll in the main loop to return with EINTR
+   Each argv_period seconds it will fire up a SIGALRM which causes the poll in the main loop to return with EINTR
    and causes control flow to enter produceDump(..) which will swap the existing 2 dbs with two new empty dbs and it will fire up two 
    threads(one for each old db) which will call will call dumpData(..) and inside dumpData, there is a loop which iterates through 
    all the rows in the DB and writes pagecounts and projectcounts files on disk.
@@ -52,6 +52,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <db.h>
+#include <getopt.h>
 #include <pthread.h>
 #include "collector.h"
 #include <stdlib.h>
@@ -62,9 +63,12 @@
 #define FILENAME_DB_DB    ".temp.db.%d.db"
 #define FILENAME_DB_AGGR  ".temp.aggr.%d.db"
 
+int argv_port   = -1;
+int argv_period = -1;
 char old_filename_db[  100];
 char old_filename_aggr[100];
 
+char *VERSION="development-placeholder-version";
 void print_error(int error){
 	char *msg = strerror(error);
 	fprintf(stderr,"Encountered error:%s\n", msg);
@@ -75,7 +79,7 @@ inline char *generate_new_db_name(char *where_to_write,char *dbname) {
     fprintf(stderr,"Error: generate_new_db_name");
     exit(-2);
   };
-  sprintf(where_to_write,".temp.%s.%d.db",dbname,time(NULL));
+  sprintf(where_to_write,".temp.%s.%d.db",dbname,(unsigned int)time(NULL));
 
   return where_to_write;
 }
@@ -111,22 +115,71 @@ bool directory_exists(char *dname) {
 }
 
 
-int main(int ac, char **av) {
+int main(int argc, char **argv) {
 	ssize_t l;
 	char buf[2000];
 	int r;
+        int c;
 	int retval;
 
         #if DEBUG == 1
           fprintf(stderr,"Warning! =>  DEBUG=1\n");
         #endif
 
+	static struct option long_options[] = {
+			{"help"    , no_argument       , 0 , 'h'},
+			{"version" , no_argument       , 0 , 'v'},
+			{"port"    , required_argument , 0 , 'p'},
+			{"period"  , required_argument , 0 , 't'},
+			{0,0,0,0}
+	};
+
+	while((c = getopt_long(argc, argv, "hvp:t:", long_options, NULL)) != -1) {
+          switch(c)
+          {
+            case 'v':
+              printf("\nWebStatsCollector - Collector\nVersion=%s\n\n",VERSION);
+              exit(0);
+            case 'h':
+              printf("Usage: collector [OPTION]\n");
+              printf("\n");
+              printf("  -v, --version        Print the version of collector\n");
+              printf("  -h, --help           display this help and exit\n");
+              printf("  -p, --port=NUMBER    Port on which collector will listen\n");
+              printf("  -t, --period=NUMBER  Period between data dumps, measured in seconds\n");
+              printf("\n");
+              printf("Collector listens for data on port 3815 on UDP protocol(by default, but can be modified through -p) and\n");
+              printf("collects data that comes on that port.\n");
+              printf("The data collected must be in the format filter will produce. \n");
+              printf("\n");
+              exit(0);
+            case 'p':
+              argv_port = atoi(optarg);
+              if(argv_port < 0) {
+                printf("Error , invalid port number\n");
+                exit(-1);
+              };
+              printf("Listening on port %d\n",argv_port);
+              break;
+            case 't':
+              argv_period = atoi(optarg);
+              if(argv_period < 0) {
+                printf("Error , invalid number of seconds\n");
+                exit(-1);
+              };
+              printf("Period is %d seconds\n",argv_period);
+              break;
+            default:
+              break;
+          }
+	}
+
 
         /* check if dump directory exists */
         if(!directory_exists(PREFIX)) {
           char error_msg[1000];
           sprintf(error_msg,"Error: directory %s not present, create one\n",PREFIX);
-          fprintf(stderr,error_msg);
+          fprintf(stderr,"%s",error_msg);
           exit(-1);
         };
 
@@ -150,10 +203,13 @@ int main(int ac, char **av) {
 		#endif
 		setuid(65534);
 		setgid(65534);
-		port=3815;
+
+                argv_port   = (argv_port   == -1) ? 3815   : argv_port  ;
+                argv_period = (argv_period == -1) ? PERIOD : argv_period;
+
 		bzero(&me,sizeof(me));
 		me.sin_family= AF_INET;
-		me.sin_port=htons(port);
+		me.sin_port=htons(argv_port);
 		inet_aton("127.0.0.1", &me.sin_addr);
 		s=socket(AF_INET,SOCK_DGRAM,0);
 		bind(s,(struct sockaddr *)&me,sizeof(me));
@@ -182,7 +238,7 @@ int main(int ac, char **av) {
 		signal(SIGUSR1,truncatedb);
 
 		/* Schedule the dumps */
-		alarm(PERIOD-(time(NULL)%PERIOD));
+		alarm(argv_period-(time(NULL)%argv_period));
 	}
 	/* Loop! loop! loop! */
 	printf("Looping\n");
@@ -358,7 +414,7 @@ void produceDump() {
 		2) Spawn background threads to:
 			2.1) Dump out the data
 			2.2) Destroy old databases
-		3) Set the alarm to next PERIOD-thetime%PERIOD - this will position the alarm at next nice period.
+		3) Set the alarm to next argv_period-thetime%argv_period - this will position the alarm at next nice period.
 	*/
 	static struct dumperjob dumperJob, aggrDumperJob;
 	DB *olddb,*oldaggr;
@@ -388,7 +444,7 @@ void produceDump() {
         strcpy(aggrDumperJob.db_to_delete,old_filename_aggr);
 
 	pthread_create(&thread_aggrdumper,NULL,(void *)statsDumper,(void *)&aggrDumperJob);
-	alarm(PERIOD-(dumptime%PERIOD));
+	alarm(argv_period-(dumptime%argv_period));
 
         #if DEBUG==1
           fprintf(stderr, "Creating DB\n");
@@ -421,7 +477,7 @@ void handleConnection(int c) {
 	} else {
 		while(!feof(tmp)) {
 			r=fread((char *)&buf,1,1024,tmp);
-			(void)write(c,(char *)&buf,r);
+			int retval_wait = write(c,(char *)&buf,r);
 		}
 		close(c);
 		fclose(tmp);
