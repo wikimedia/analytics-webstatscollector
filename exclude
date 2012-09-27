@@ -13,3 +13,4 @@ export
 example2.log
 dumps/*
 .temp*
+webstatscollector.tar
