@@ -35,6 +35,8 @@
 
    In order to develop, you can start up you can compile everything with  ./build.sh
    and then run   cat example2.log | ./filter | nc -u 127.0.0.1 3815
+   This requires you to have the collector running because what the above command will do is send the data that filter outputs
+   to udp port 3815 on your local machine.
    Make sure you have a dumps directory.
 
 */
@@ -94,24 +96,39 @@ void truncatedb();
 DB * initEmptyDB();
 void handleMessage(char *,ssize_t );
 void handleConnection(int);
-void produceDump();
+void produceDump(char *);
 void increaseStatistics(DB *, char *, struct wcstats * );
 
 int needdump=0;
 
 
-bool directory_exists(char *dname) {
+#define DIRECTORY_PERMISSIONS_ERROR   2
+#define DIRECTORY_DOESNT_EXIT         1
+#define DIRECTORY_EXISTS_AND_WRITABLE 0
+
+int directory_exists(char *dname) {
   struct stat st;
-  bool ret;
+  int ret;
 
   if (stat(dname,&st) != 0) {
-    return false;
+    return DIRECTORY_DOESNT_EXIT;
   }
 
   ret = S_ISDIR(st.st_mode);
-  if(!ret)
-    errno = ENOTDIR;
-  return ret;
+  if(!ret) {
+    return DIRECTORY_DOESNT_EXIT;
+  };
+
+  if(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) {
+    if(access(dname, W_OK)) {
+      return DIRECTORY_PERMISSIONS_ERROR;
+    } else {
+      // already exists but writable
+      return DIRECTORY_EXISTS_AND_WRITABLE;
+    };
+  } else {
+    return DIRECTORY_EXISTS_AND_WRITABLE;
+  };
 }
 
 
@@ -121,6 +138,8 @@ int main(int argc, char **argv) {
 	int r;
         int c;
 	int retval;
+        char path_dumps[600];
+        int len_path_dumps = 0;
 
         #if DEBUG == 1
           fprintf(stderr,"Warning! =>  DEBUG=1\n");
@@ -131,10 +150,11 @@ int main(int argc, char **argv) {
 			{"version" , no_argument       , 0 , 'v'},
 			{"port"    , required_argument , 0 , 'p'},
 			{"period"  , required_argument , 0 , 't'},
+			{"output"  , required_argument , 0 , 'o'},
 			{0,0,0,0}
 	};
 
-	while((c = getopt_long(argc, argv, "hvp:t:", long_options, NULL)) != -1) {
+	while((c = getopt_long(argc, argv, "o:hvp:t:", long_options, NULL)) != -1) {
           switch(c)
           {
             case 'v':
@@ -147,6 +167,7 @@ int main(int argc, char **argv) {
               printf("  -h, --help           display this help and exit\n");
               printf("  -p, --port=NUMBER    Port on which collector will listen\n");
               printf("  -t, --period=NUMBER  Period between data dumps, measured in seconds\n");
+              printf("  -o, --output=STRING  Path where dumps will be placed. This path must exist.\n");
               printf("\n");
               printf("Collector listens for data on port 3815 on UDP protocol(by default, but can be modified through -p) and\n");
               printf("collects data that comes on that port.\n");
@@ -167,7 +188,17 @@ int main(int argc, char **argv) {
                 printf("Error , invalid number of seconds\n");
                 exit(-1);
               };
-              printf("Period is %d seconds\n",argv_period);
+              fprintf(stderr,"Period is %d seconds\n",argv_period);
+              break;
+            case 'o':
+              strcpy(path_dumps,optarg);
+              len_path_dumps = strlen(path_dumps);
+
+              /* a trailing slash needed, so we make sure we put one there */
+              if(len_path_dumps > 0 && path_dumps[len_path_dumps-1] != '/') {
+                path_dumps[len_path_dumps] = '/';
+                path_dumps[len_path_dumps+1] = '\0';
+              };
               break;
             default:
               break;
@@ -175,12 +206,29 @@ int main(int argc, char **argv) {
 	}
 
 
+        /* no -o param was present so we just put the default */
+        if(len_path_dumps == 0) {
+          strcpy(path_dumps,PREFIX);
+        };
+
+        char error_msg[1000];
         /* check if dump directory exists */
-        if(!directory_exists(PREFIX)) {
-          char error_msg[1000];
-          sprintf(error_msg,"Error: directory %s not present, create one\n",PREFIX);
-          fprintf(stderr,"%s",error_msg);
-          exit(-1);
+        switch(directory_exists(path_dumps)) {
+          case DIRECTORY_DOESNT_EXIT:
+            sprintf(error_msg,"Error: directory %s not present, create one\n",path_dumps);
+            fprintf(stderr,"%s",error_msg);
+            exit(-1);
+            break;
+          case DIRECTORY_PERMISSIONS_ERROR:
+            fprintf(stderr,"Error: Directory exists you don't have enough permissions to write to it\n");
+            exit(-1);
+            break;
+          case DIRECTORY_EXISTS_AND_WRITABLE:
+            fprintf(stderr,"Will write dumps to %s\n",path_dumps);
+            break;
+          default:
+            fprintf(stderr,"Error: on line %d\n",__LINE__);
+            break;
         };
 
 	/* Socket variables */
@@ -246,7 +294,7 @@ int main(int argc, char **argv) {
 		printf("1: here we are again\n");
 		r=poll(fds,2,-1);
 		if (needdump)
-			produceDump();
+			produceDump(path_dumps);
 
 		/* Process incoming UDP queue */
 		while(( fds[0].revents & POLLIN ) &&
@@ -408,7 +456,7 @@ void statsDumper(struct dumperjob * job) {
 }
 
 /* The dumps stuff */
-void produceDump() {
+void produceDump(char *path_dumps) {
 	/* Teh logicz:
 		1) Swap with empty databasez - pretty much atomic, can be done in main loop
 		2) Spawn background threads to:
@@ -431,14 +479,16 @@ void produceDump() {
         /* after we've unlinked the old dbs we create new ones which take their place for the upcoming produceDump call*/
 
 
-	dumperJob.prefix= PREFIX "pagecounts";
+        strcpy(dumperJob.prefix,path_dumps);
+        strcat(dumperJob.prefix,"pagecounts");
 	dumperJob.db=olddb;
 	dumperJob.time=dumptime;
         strcpy(dumperJob.db_to_delete,old_filename_db);
 
 	pthread_create(&thread_dumper,NULL,(void *)statsDumper, (void *)&dumperJob);
 
-	aggrDumperJob.prefix= PREFIX "projectcounts";
+        strcpy(aggrDumperJob.prefix,path_dumps);
+        strcat(aggrDumperJob.prefix,"projectcounts");
 	aggrDumperJob.db = oldaggr;
 	aggrDumperJob.time=dumptime;
         strcpy(aggrDumperJob.db_to_delete,old_filename_aggr);
