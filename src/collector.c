@@ -120,14 +120,17 @@ int directory_exists(char *dname) {
   };
 
   if(st.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH)) {
+    // writing is permitted to someone
     if(access(dname, W_OK)) {
+      // permission denied
       return DIRECTORY_PERMISSIONS_ERROR;
     } else {
-      // already exists but writable
+      // directory exists and writable
       return DIRECTORY_EXISTS_AND_WRITABLE;
     };
   } else {
-    return DIRECTORY_EXISTS_AND_WRITABLE;
+    // directory is read-only
+    return DIRECTORY_PERMISSIONS_ERROR;
   };
 }
 
