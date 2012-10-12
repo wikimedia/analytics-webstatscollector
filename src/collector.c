@@ -66,6 +66,20 @@
 #define FILENAME_DB_AGGR  ".temp.aggr.%d.db"
 
 int argv_port   = -1;
+/**
+  *
+  * agv_period is the interval at which Berkeley DB is dumped to disk.
+  *
+  * The default value for this is 3600
+  *
+  * This can be altered in two ways:
+  *
+  * Either this interval is specified as a switch from commandline ( see -t switch. no.. -p is reserved for port )
+  * or you switch on debugging mode (-d) which will which will output every minuted.
+  *
+  */
+
+
 int argv_period = -1;
 char old_filename_db[  100];
 char old_filename_aggr[100];
@@ -94,9 +108,9 @@ void truncatedb();
 
 
 DB * initEmptyDB();
-void handleMessage(char *,ssize_t );
+void handleMessage(char *,ssize_t,int);
 void handleConnection(int);
-void produceDump(char *);
+void produceDump(char *,int);
 void increaseStatistics(DB *, char *, struct wcstats * );
 
 int needdump=0;
@@ -140,10 +154,9 @@ int main(int argc, char **argv) {
 	int retval;
         char path_dumps[600];
         int len_path_dumps = 0;
+        int debug_flag = 0;
 
-        #if DEBUG == 1
-          fprintf(stderr,"Warning! =>  DEBUG=1\n");
-        #endif
+
 
 	static struct option long_options[] = {
 			{"help"    , no_argument       , 0 , 'h'},
@@ -151,10 +164,11 @@ int main(int argc, char **argv) {
 			{"port"    , required_argument , 0 , 'p'},
 			{"period"  , required_argument , 0 , 't'},
 			{"output"  , required_argument , 0 , 'o'},
+			{"debug"   , no_argument       , 0 , 'd'},
 			{0,0,0,0}
 	};
 
-	while((c = getopt_long(argc, argv, "o:hvp:t:", long_options, NULL)) != -1) {
+	while((c = getopt_long(argc, argv, "o:hvp:t:d", long_options, NULL)) != -1) {
           switch(c)
           {
             case 'v':
@@ -168,6 +182,7 @@ int main(int argc, char **argv) {
               printf("  -p, --port=NUMBER    Port on which collector will listen\n");
               printf("  -t, --period=NUMBER  Period between data dumps, measured in seconds\n");
               printf("  -o, --output=STRING  Path where dumps will be placed. This path must exist.\n");
+              printf("  -d, --debug          Debugging mode.\n");
               printf("\n");
               printf("Collector listens for data on port 3815 on UDP protocol(by default, but can be modified through -p) and\n");
               printf("collects data that comes on that port.\n");
@@ -188,7 +203,6 @@ int main(int argc, char **argv) {
                 printf("Error , invalid number of seconds\n");
                 exit(-1);
               };
-              fprintf(stderr,"Period is %d seconds\n",argv_period);
               break;
             case 'o':
               strcpy(path_dumps,optarg);
@@ -200,11 +214,18 @@ int main(int argc, char **argv) {
                 path_dumps[len_path_dumps+1] = '\0';
               };
               break;
+            case 'd':
+              debug_flag = 1;
+              break;
             default:
               break;
           }
-	}
+	};
 
+        if(debug_flag) {
+          argv_period = 60;
+          fprintf(stderr,"Debugging turned on\n");
+        };
 
         /* no -o param was present so we just put the default */
         if(len_path_dumps == 0) {
@@ -224,7 +245,9 @@ int main(int argc, char **argv) {
             exit(-1);
             break;
           case DIRECTORY_EXISTS_AND_WRITABLE:
-            fprintf(stderr,"Will write dumps to %s\n",path_dumps);
+            if(debug_flag) {
+              fprintf(stderr,"Writing dumps to: %s\n",path_dumps);
+            };
             break;
           default:
             fprintf(stderr,"Error: on line %d\n",__LINE__);
@@ -253,7 +276,12 @@ int main(int argc, char **argv) {
 		setgid(65534);
 
                 argv_port   = (argv_port   == -1) ? 3815   : argv_port  ;
-                argv_period = (argv_period == -1) ? PERIOD : argv_period;
+                /**
+                  * argv_period is initialized with -1. if we reach this point and it's
+                  * still -1, then it means nothing has changed it (not -t nor -d) so we set
+                  * it to the default value of 3600
+                  */
+                argv_period = (argv_period == -1) ? 3600   : argv_period;
 
 		bzero(&me,sizeof(me));
 		me.sin_family= AF_INET;
@@ -289,19 +317,20 @@ int main(int argc, char **argv) {
 		alarm(argv_period-(time(NULL)%argv_period));
 	}
 	/* Loop! loop! loop! */
-	printf("Looping\n");
+        if(debug_flag) {
+          printf("Looping\n");
+        };
 	for(;;) {
-		printf("1: here we are again\n");
 		r=poll(fds,2,-1);
 		if (needdump)
-			produceDump(path_dumps);
+			produceDump(path_dumps,debug_flag);
 
 		/* Process incoming UDP queue */
 		while(( fds[0].revents & POLLIN ) &&
 			((l=recvfrom(s,&buf,1500,0,NULL,NULL))!=-1)) {
 				if (l==EAGAIN)
 					break;
-				handleMessage((char *)&buf,l);
+				handleMessage((char *)&buf,l,debug_flag);
 			}
 
 		/* Process incoming TCP queue - for testing data collection only */
@@ -321,7 +350,7 @@ int main(int argc, char **argv) {
 
 
 /* Decides what to do with incoming UDP message */
-void handleMessage(char *buf,ssize_t l) {
+void handleMessage(char *buf,ssize_t l,int debug_flag) {
 	char *p,*pp;
 	char project[128];
 	char title[1024];
@@ -363,13 +392,17 @@ void handleMessage(char *buf,ssize_t l) {
 			truncatedb();
 			return;
 		}
-		printf("Got the message: [%s]\n", p);
+                if(debug_flag) {
+                  fprintf(stderr,"Received message: [%s]\n", p);
+                };
 		bzero(&incoming,sizeof(incoming));
 		r=sscanf(p,msgformat,&serial,(char *)&project,
 			&incoming.wc_count,
 			&incoming.wc_bytes,
 			(char *)&title);
-		printf("Number of fields: %d\n", r);
+                if(debug_flag) {
+                  fprintf(stderr,"Message contains %d fields\n", r);
+                };
 		if (r<5)
 			continue;
 		snprintf(keytext,1199,"%s:%s",project,title);
@@ -445,9 +478,9 @@ void statsDumper(struct dumperjob * job) {
 	rename(tfilename,filename);
 	db->close(db,DB_NOSYNC);
 
-        #if DEBUG==1
-          fprintf(stderr,"deleting file %s\n",job->db_to_delete);
-        #endif
+        if(job->debug_flag) {
+          fprintf(stderr,"Removing file %s\n",job->db_to_delete);
+        };
 
 
         // delete the database that has just been dumped to disk through dumpData
@@ -456,7 +489,7 @@ void statsDumper(struct dumperjob * job) {
 }
 
 /* The dumps stuff */
-void produceDump(char *path_dumps) {
+void produceDump(char *path_dumps,int debug_flag) {
 	/* Teh logicz:
 		1) Swap with empty databasez - pretty much atomic, can be done in main loop
 		2) Spawn background threads to:
@@ -478,6 +511,9 @@ void produceDump(char *path_dumps) {
 
         /* after we've unlinked the old dbs we create new ones which take their place for the upcoming produceDump call*/
 
+        dumperJob.debug_flag      = debug_flag;
+        aggrDumperJob.debug_flag  = debug_flag;
+
 
         strcpy(dumperJob.prefix,path_dumps);
         strcat(dumperJob.prefix,"pagecounts");
@@ -496,18 +532,18 @@ void produceDump(char *path_dumps) {
 	pthread_create(&thread_aggrdumper,NULL,(void *)statsDumper,(void *)&aggrDumperJob);
 	alarm(argv_period-(dumptime%argv_period));
 
-        #if DEBUG==1
+        if(debug_flag){
           fprintf(stderr, "Creating DB\n");
-        #endif
+        };
 
         generate_new_db_name(old_filename_db  ,"db"   );
 	db  =initEmptyDB( old_filename_db   );
         generate_new_db_name(old_filename_aggr,"aggr" );
 	aggr=initEmptyDB( old_filename_aggr );
 
-        #if DEBUG==1
+        if(debug_flag){
           fprintf(stderr,"Finished creating DB\n");
-        #endif
+        };
 }
 
 /* TCP connection handling logic - unsafe dump of data in DB - should be avoided at large datasets */
