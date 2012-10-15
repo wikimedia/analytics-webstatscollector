@@ -6,6 +6,10 @@ collector_SOURCES = src/collector.c src/collector.h src/export.c src/export.h
 filter_SOURCES = src/filter.c src/filter.h
 
 
+PACKAGE_STRING=webstatscollector 0.2.32
+PACKAGE_VERSION=0.2.32
+VERSION=0.2.32
+
 
 if DEBUG
        AM_CFLAGS = -g3 -O0 -Wall -pedantic $(DEPS_CFLAGS) $(AM_LDFLAGS)

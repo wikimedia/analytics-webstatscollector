@@ -10,8 +10,8 @@ Homepage: http://www.mediawiki.org/wiki/Analytics/webstatscollector
 
 Package: webstatscollector
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libdb4.6-dev (>= 4.6)
-Description:This package counts pageviews by hour for all the major Wikimedia projects. 
+Depends: ${shlibs:Depends}, ${misc:Depends}, libdb (>= 4.6)
+Description: This package counts pageviews by hour for all the major Wikimedia projects. 
   Originally written by Domas Mituzas, webstatscollector consists of two 
   components:
   1) collector: a daemon running on port 3815 that receives messages 

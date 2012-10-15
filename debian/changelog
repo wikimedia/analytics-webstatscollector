@@ -1,39 +1,56 @@
 webstatscollector (0.2) lucid; urgency=low
 
-  [ Domas Mituzas ]
-  * remove some stuff that doesn't belong to source
-  * removing stuff
-  * remove svnignore too
-  * minor fixes, add serial number to format
-
-  [ Ævar Arnfjörð Bjarmason ]
-  * link to pthread since we use pthread_create
+  * Created new 0.2 from tag 0.2
+  * remove some stuff that doesn't belong to source [ Domas Mituzas
+    <midom@users.mediawiki.org> ]
+  * removing stuff [ Domas Mituzas <midom@users.mediawiki.org> ]
+  * remove svnignore too [ Domas Mituzas <midom@users.mediawiki.org> ]
+  * minor fixes, add serial number to format [ Domas Mituzas
+    <midom@users.mediawiki.org> ]
+  * link to pthread since we use pthread_create [ Ævar Arnfjörð
+    Bjarmason <avar@users.mediawiki.org> ]
   * #include <db.h> not <db4/db.h>, db.h is in /usr/include/db.h on e.g.
-    debian
+    debian [ Ævar Arnfjörð Bjarmason <avar@users.mediawiki.org> ]
   * Free the bdb databases before exiting the program, this fixes the
+    following problem reported by valgrind: [ Ævar Arnfjörð Bjarmason
+    <avar@users.mediawiki.org> ]
   * script that generates test data for the collector and flings it at
+    port 3815, written for testing a memory leak [ Ævar Arnfjörð
+    Bjarmason <avar@users.mediawiki.org> ]
+  * add squidlogs >collector filter, to sit between udp2log and log2udp
+    [ Domas Mituzas <midom@users.mediawiki.org> ]
 
-  [ Domas Mituzas ]
-  * add squidlogs->collector filter, to sit between udp2log and log2udp
-  * avoid anchors in stats
-
-  [ Hampton Catlin ]
+  [ Diederik ]
+  * avoid anchors in stats [ Domas Mituzas <midom@users.mediawiki.org> ]
   * Updating the webstatscollector filter method to handle mobile
-    requests specially. as per the spec discussed with domas and erikz
+    requests specially. as per the spec discussed with domas and erikz [
+    Hampton Catlin <hcatlin@users.mediawiki.org> ]
+  * Fixing spacing and sync'ing with live copy [ Tomasz Finc
+    <tomasz@users.mediawiki.org> ]
+  * lining up whitelist spacing [ Tomasz Finc
+    <tomasz@users.mediawiki.org> ]
+  * missing semicolon [ Tomasz Finc <tomasz@users.mediawiki.org> ]
+  * fix some segfaults  added by r67338  and jailing sequence  initial
+    code, touched by r67367 , add apparmor profile [ Domas Mituzas
+    <midom@users.mediawiki.org> ]
+  * Updated IP blocks that should be filtered due to duplicate squid
+    requests. [ Diederik van Liere <diederik@users.mediawiki.org> ]
+  * Adding .gitreview [ Chad Horohoe <chadh@wikimedia.org> ]
 
-  [ Tomasz Finc ]
-  * Fixing spacing and sync'ing with live copy
-  * lining up whitelist spacing
-  * missing semicolon
+ -- Diederik <diederik@i-000002b3.pmtpa.wmflabs>  Mon, 15 Oct 2012 17:13:02 +0000
 
-  [ Domas Mituzas ]
-  * fix some segfaults (added by r67338) and jailing sequence (initial
-    code, touched by r67367), add apparmor profile
+webstatscollector (0.1) lucid; urgency=low
 
- -- Diederik van Liere (Wikimedia Foundation) <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 16:08:42 -0400
+  * Created new 0.1 from tag 0.1
+  * import web statistics collector/dumper [ Domas Mituzas
+    <midom@users.mediawiki.org> ]
+  * import web statistics collector/dumper [ Domas Mituzas
+    <midom@users.mediawiki.org> ]
 
-webstatscollector (0.1) UNRELEASED; urgency=low
+ -- Diederik <diederik@i-000002b3.pmtpa.wmflabs>  Mon, 15 Oct 2012 17:12:56 +0000
 
-  * Initial release.
+webstatscollector (0.0.1) UNRELEASED; urgency=low
 
- -- Diederik van Liere (Wikimedia Foundation) <dvanliere@wikimedia.org>  Wed, 22 Aug 2012 15:15:39 -0400
+  * Created package
+
+ -- Diederik <diederik@i-000002b3.pmtpa.wmflabs>  Mon, 15 Oct 2012 17:12:55 +0000
