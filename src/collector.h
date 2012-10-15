@@ -15,13 +15,6 @@
   *   DEBUG = 1 is just used for development and testing
   *
   */
-#define DEBUG 1
-
-#if DEBUG == 1
-  #define PERIOD 60
-#else
-  #define PERIOD 3600
-#endif
 
 #include "export.h"
 
@@ -44,6 +37,7 @@ struct dumperjob {
 	DB *db;
 	time_t time;
         char db_to_delete[100];
+        int debug_flag;
 };
 
 #endif
