@@ -220,7 +220,7 @@ void explode_url(char *url,url_s *u) {
       u->has_title = true;
 
       strcpy(u->title,u->dir+6);
-      decode_title(u->title); //optional, can be removed, this just turns titles like %B5%EF  into readable characters
+      /*decode_title(u->title); //optional, can be removed, this just turns titles like %B5%EF  into readable characters*/
     };
   };
 

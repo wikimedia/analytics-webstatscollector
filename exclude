@@ -10,6 +10,12 @@ config.status
 filter
 collector
 export
+changelog_backup
+changelog_backup/
+changelog_backup/*
+debian
+debian/
+debian/*
 example2.log
 dumps/*
 .temp*

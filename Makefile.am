@@ -1,10 +1,23 @@
 # Makefile for profile collector package
 # $Id: Makefile 12318 2005-12-31 15:34:46Z midom $
 # remove the topbuildir
-bin_PROGRAMS = collector filter 
+bin_PROGRAMS = 	    collector filter collector-static filter-static
 collector_SOURCES = src/collector.c src/collector.h src/export.c src/export.h
-filter_SOURCES = src/filter.c src/filter.h
+filter_SOURCES =    src/filter.c src/filter.h
 
+collector_static_SOURCES = $(collector_SOURCES)
+filter_static_SOURCES	 = $(filter_SOURCES)
+
+collector_LDADD = -ldb -lpthread
+filter_LDADD	= -ldb -lpthread
+
+collector_static_LD_ADD  = $(collector_LDADD)
+filter_static_LD_ADD 	 = $(filter_LDADD)
+
+
+
+collector_static_LDFLAGS = -all-static
+filter_static_LDFLAGS = -all-static
 
 PACKAGE_STRING=webstatscollector 0.2.32
 PACKAGE_VERSION=0.2.32
@@ -32,17 +45,10 @@ ACLOCAL_AMFLAGS = -I m4
 
 all: collector filter
 
-collector: src/collector.h src/collector.c src/export.c export.o
-	$(CC) -o collector src/collector.c export.o -ldb -lpthread
-
-
-filter: src/filter.c
-	$(CC) -o filter src/filter.c
-
 
 export.o: src/collector.h src/export.c
 	$(CC) -c -o export.o src/export.c
 
 clean:
-	rm -f collector export.o filter
+	rm -f collector export.o filter collector-static filter-static
 

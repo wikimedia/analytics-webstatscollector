@@ -27,3 +27,4 @@ filter.sh
 serial
 small_source.txt
 source.txt
+!.gitmodules
