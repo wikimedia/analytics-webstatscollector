@@ -324,25 +324,25 @@ int main(int argc, char **argv) {
           printf("Looping\n");
         };
 	for(;;) {
-		r=poll(fds,2,-1);
-		if (needdump)
-			produceDump(path_dumps,debug_flag);
+		  r=poll(fds,2,-1);
+		  if (needdump)
+			  produceDump(path_dumps,debug_flag);
 
-		/* Process incoming UDP queue */
-		while(( fds[0].revents & POLLIN ) &&
-			((l=recvfrom(s,&buf,1500,0,NULL,NULL))!=-1)) {
-				if (l==EAGAIN)
-					break;
-				handleMessage((char *)&buf,l,debug_flag);
-			}
+		  /* Process incoming UDP queue */
+			  while(( fds[0].revents & POLLIN ) &&
+				  ((l=recvfrom(s,&buf,1500,0,NULL,NULL))!=-1)) {
+			  if (l==EAGAIN)
+				  break;
+			  handleMessage((char *)&buf,l,debug_flag);
+		  }
 
-		/* Process incoming TCP queue - for testing data collection only */
-		while((fds[1].revents & POLLIN ) &&
-			((r=accept(exp,(struct sockaddr *)&them,&sl))!=-1)) {
-				if (r==EWOULDBLOCK)
-					break;
-				handleConnection(r);
-		}
+		  /* Process incoming TCP queue - for testing data collection only */
+				  while((fds[1].revents & POLLIN ) &&
+					  ((r=accept(exp,(struct sockaddr *)&them,&sl))!=-1)) {
+			  if (r==EWOULDBLOCK)
+				  break;
+		  handleConnection(r);
+		  }
 	}
 	printf("closing the db's\n");
 	db->close(db, 0);
@@ -352,31 +352,49 @@ int main(int argc, char **argv) {
 }
 
 
+/*
+ * The MAX_PROJECT , MAX_TITLE_LEN must be correlated with
+ * udp-filter -o  collector output, in particular the sizes inside structure
+ * url_s member title and 
+ * the internal_traffic_print_for_collector which prints data for collector
+ *  
+ *  So the constants mentioned need to stay in sync with udp-filter
+ *
+ */
+
+
+#define MAX_PROJECT_LEN  10000
+#define MAX_TITLE_LEN    10000
+#define MAX_KEYTEXT_LEN  (MAX_PROJECT_LEN+MAX_TITLE_LEN+1)
+
 /* Decides what to do with incoming UDP message */
 void handleMessage(char *buf,ssize_t l,int debug_flag) {
 	char *p,*pp;
-	char project[128];
-	char title[1024];
-	char keytext[1200];
+	char project[MAX_PROJECT_LEN];
+	char title[  MAX_TITLE_LEN  ];
+	char keytext[MAX_KEYTEXT_LEN];
 	int r;
 
 
 
-        /** 
-          * serial is not used in collector, it's used just for the generate-test-data.pl
-          * for debugging purposes
-          *
-        */
+      /** 
+      * serial is not used in collector, it's used just for the generate-test-data.pl
+      * for debugging purposes
+      *
+      */
 
-        unsigned long long serial; 
+	unsigned long long serial; 
+	unsigned long long seq;
 
 	struct wcstats incoming;
 
 	/* project count bytesize page */
-	const char msgformat[]="%llu %127s %llu %llu %1023[^\n]";
+	const char msgformat_prod[]="%llu %llu %9999s %llu %llu %9999[^\n]";
+	const char msgformat_dev[]= "%llu %9999s %llu %llu %9999[^\n]";
+
 
 	/*
-         * field 1: serial number(just for debugging)
+       * field 1: serial number(just for debugging)
 	 * field 2: project title with a max of 127 bytes excluding the '\0'
 	 * field 3: unsigned long count, by default 1
 	 * field 4: unsigned long size of http request
@@ -394,21 +412,35 @@ void handleMessage(char *buf,ssize_t l,int debug_flag) {
 		if (!strcmp("-truncate",p)) {
 			truncatedb();
 			return;
-		}
-                if(debug_flag) {
-                  fprintf(stderr,"Received message: [%s]\n", p);
-                };
+		};
+
+		if(debug_flag) {
+			fprintf(stderr,"Received message: [%s]\n", p);
+		};
+
 		bzero(&incoming,sizeof(incoming));
-		r=sscanf(p,msgformat,&serial,(char *)&project,
-			&incoming.wc_count,
-			&incoming.wc_bytes,
-			(char *)&title);
-                if(debug_flag) {
-                  fprintf(stderr,"Message contains %d fields\n", r);
-                };
-		if (r<5)
+
+		if(debug_flag) {
+			r=sscanf(p,msgformat_dev, &serial,(char *)&project,
+				   &incoming.wc_count,
+				   &incoming.wc_bytes,
+				   (char *)&title);
+			fprintf(stderr,"Message contains %d fields\n", r);
+		} else {
+			r=sscanf(p,msgformat_prod,&seq, &serial,(char *)&project,
+				   &incoming.wc_count,
+				   &incoming.wc_bytes,
+				   (char *)&title);
+		};
+
+		if (r<5) {
 			continue;
-		snprintf(keytext,1199,"%s:%s",project,title);
+		} else {
+			if(debug_flag) {
+				fprintf(stderr,"Message passed field count check\n");
+			};
+		};
+		snprintf(keytext,MAX_KEYTEXT_LEN,"%s:%s",project,title);
 
 		increaseStatistics(db,keytext,&incoming);
 		increaseStatistics(aggr,project,&incoming);
@@ -485,6 +517,7 @@ void statsDumper(struct dumperjob * job) {
           fprintf(stderr,"Removing file %s\n",job->db_to_delete);
         };
 
+        free(job->prefix);
 
         // delete the database that has just been dumped to disk through dumpData
         unlink(job->db_to_delete);
@@ -516,6 +549,8 @@ void produceDump(char *path_dumps,int debug_flag) {
 
         dumperJob.debug_flag      = debug_flag;
         aggrDumperJob.debug_flag  = debug_flag;
+        dumperJob.prefix          = malloc(600);
+        aggrDumperJob.prefix      = malloc(600);
 
 
         strcpy(dumperJob.prefix,path_dumps);

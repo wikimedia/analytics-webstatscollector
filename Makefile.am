@@ -50,5 +50,5 @@ export.o: src/collector.h src/export.c
 	$(CC) -c -o export.o src/export.c
 
 clean:
-	rm -f collector export.o filter collector-static filter-static
+	rm -f filter.o collector.o export.o collector filter collector-static filter-static
 
