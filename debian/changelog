@@ -1,4 +1,23 @@
-webstatscollector (0.2.34) maverick-wikimedia; urgency=low
+webstatscollector (0.2.90) lucid-wikimedia; urgency=low
+
+  [ Petrea Corneliu Stefan  ]
+  * Created new 0.2.90 version from tag 0.2.90
+
+  [ Diederik van Liere  ]
+  * Packaging improvements
+  * Merge branch 'master' of
+    ssh://gerrit.wikimedia.org:29418/analytics/webstatscollector
+
+  [ Petrea Corneliu Stefan  ]
+  *     Removed unicode decoding
+  * Fixed segfault found during deployment
+
+  [ Diederik van Liere ]
+  * Tag created for version 0.2.90
+
+ -- Diederik van Liere <dvanliere@wikimedia.org>  Fri, 30 Nov 2012 23:36:36 +0200
+
+webstatscollector (0.2.34) lucid-wikimedia; urgency=low
 
   [ Petrea Corneliu Stefan  ]
   * Created new 0.2.34 version from tag 0.2.34
@@ -89,7 +108,7 @@ webstatscollector (0.2.34) maverick-wikimedia; urgency=low
 
  -- Diederik van Liere <dvanliere@wikimedia.org>  Fri, 9 Nov 2012 19:00:38 +0200
 
-webstatscollector (0.2) maverick-wikimedia; urgency=low
+webstatscollector (0.2) lucid-wikimedia; urgency=low
 
   [ Diederik van Liere  ]
   * Created new 0.2 version from tag 0.2
