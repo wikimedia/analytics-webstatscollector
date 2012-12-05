@@ -400,7 +400,9 @@ void handleMessage(char *buf,ssize_t l,int debug_flag) {
 	 * field 4: unsigned long size of http request
 	 * field 5: page title with a max of 1023 bytes excluding the '\0'
 	 */
-	printf("3: Handling the message\n");
+	if(debug_flag) {
+		printf("3: Handling the message\n");
+	};
 
 	buf[l]=0;
 	pp=buf;
