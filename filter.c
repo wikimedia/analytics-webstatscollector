@@ -101,6 +101,7 @@ const struct project {
 		{"wikiquote",".q",NULL},
 		{"m.wikipedia", ".mw", NULL},
                 {"wikivoyage", ".voy", NULL},
+                {"wikimediafoundation", ".f", NULL},
 		NULL
 	}, *project;
 
