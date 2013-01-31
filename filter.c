@@ -102,6 +102,7 @@ const struct project {
 		{"m.wikipedia", ".mw", NULL},
                 {"wikivoyage", ".voy", NULL},
                 {"wikimediafoundation", ".f", NULL},
+                {"wikidata", ".wd", NULL},
 		NULL
 	}, *project;
 
@@ -176,7 +177,7 @@ int main(int ac, char **av) {
 	while(fgets(line,LINESIZE-1,stdin)) {
 		bzero(&info,sizeof(info));
 		/* Tokenize the log line */
-		TOKENIZE(line," "); /* server */ 
+		TOKENIZE(line,"\t"); /* server */ 
 				FIELD; /* id? */
 				FIELD; /* timestamp */
 				FIELD; /* ??? */
