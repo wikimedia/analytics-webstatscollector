@@ -1,0 +1,7 @@
+
+
+The test lines in entries-with-urls-with-spaces-2013-02-10.txt were produced like this:
+
+   zcat /home/user/wikidata/raw_gzips/sampled-1000.tab.log-20130210.gz | perl -ne '@f=split(/\t/); print if index($f[8]," ")!=-1;'  > entries-with-urls-with-spaces-2013-02-10.txt
+
+After this head -40 | tail -30  was applied in order for the filter to accept all of them (some of them were influenced by some the discarding rules of the filter).

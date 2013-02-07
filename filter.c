@@ -16,30 +16,6 @@ mobile.
 
 */
 
-/*
-
-#!/usr/bin/python
-
-import re
-import sys
-
-dupes = re.compile('^(145\.97\.39\.|66\.230\.200\.|211\.115\.107\.|91\.198\.174\.)')
-urlre = re.compile('^http://([^\.]+)\.([^\.]+).org/wiki/([^?]+)')
-
-projects={"wikipedia":"","wiktionary":".d","wikinews":".n","wikimedia":".m","wikibooks":".b","wikisource":".s","mediawiki":".w","wikiversity":".v","wikiquote":".q" }
-
-for line in sys.stdin:
-	ip,undef,bytes,undef,url=line.split()[4:9]
-	if dupes.match(ip): continue
-	stuff=urlre.match(url)
-	if stuff == None: continue
-	language,project,title = stuff.groups()
-	if project=="wikimedia" and language not in ["commons","meta","incubator","species"]: continue
-	try: print language + projects[project] + " 1 " + bytes + " "  + title
-	except: continue
-
-*/
-
 #define LINESIZE 4096
 char *_sep, *_lasttok, *_firsttok;
 #define TOKENIZE(x,y) _lasttok=NULL; _sep=y; _firsttok=strtok_r(x,y,&_lasttok);
@@ -70,11 +46,11 @@ bool check_wikimedia(char *language) {
 */
 
 char *dupes[] = {"208.80.152.",
-				"208.80.153.",
-				"208.80.154.",
-				"208.80.155.",
-				"91.198.174.",
-				NULL};
+		 "208.80.153.",
+		 "208.80.154.",
+		 "208.80.155.",
+		 "91.198.174.",
+		 NULL};
 
 bool check_ip(char *ip) {
 	char **prefix=dupes;
@@ -114,6 +90,20 @@ struct info {
 	char *title;
 	char *suffix;
 } info;
+
+void replace_space(char *url) {
+	int len = strlen(url);
+	if (len==0) {
+		return;
+	}
+
+	int i;
+	for(i = 0; i < len; i++){
+		if(url[i] == ' '){
+			url[i] = '_';
+	        }
+   	 }
+}
 
 bool parse_url(char *url, struct info *in) {
 	if (!url)
@@ -186,9 +176,10 @@ int main(int ac, char **av) {
 		info.size=      FIELD; /* object size */
 				FIELD;
 		url=	    FIELD;
-		if (!parse_url(url,&info))
-			continue;
+        replace_space(url);
 		if (!check_ip(info.ip))
+			continue;
+		if (!parse_url(url,&info))
 			continue;
 		if (!check_project(&info))
 			continue;

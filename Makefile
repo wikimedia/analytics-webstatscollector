@@ -14,12 +14,14 @@ CFLAGS+=-Wall -g
 
 all: collector filter
 
-collector: collector.h collector.c export.c
+collector: collector.h collector.c export.c export.o
+	gcc -o collector collector.c export.o -ldb -lpthread
 
 filter: filter.c
-	cc -o filter filter.c
+	gcc -o filter filter.c
 
-#export: collector.h export.c
+export.o: export.c collector.h collector.c filter.c
+	gcc -c -o export.o export.c
 
 clean:
-	rm -f collector exporter
+	rm -f *.o collector filter
