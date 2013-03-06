@@ -93,6 +93,7 @@ struct info {
 
 void replace_space(char *url) {
 	int len = strlen(url);
+
 	if (len==0) {
 		return;
 	}
@@ -102,7 +103,7 @@ void replace_space(char *url) {
 		if(url[i] == ' '){
 			url[i] = '_';
 	        }
-   	 }
+   	}
 }
 
 bool parse_url(char *url, struct info *in) {
@@ -176,7 +177,9 @@ int main(int ac, char **av) {
 		info.size=      FIELD; /* object size */
 				FIELD;
 		url=	    FIELD;
-        replace_space(url);
+                if(!url)
+                  continue;
+                replace_space(url);
 		if (!check_ip(info.ip))
 			continue;
 		if (!parse_url(url,&info))
