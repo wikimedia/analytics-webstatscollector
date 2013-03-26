@@ -1,4 +1,4 @@
-webstatscollector (0.1-1) wikimedia-precise; urgency=low
+webstatscollector (0.1-1) precise-wikimedia; urgency=low
 
   * Initial package.
 
