@@ -1,0 +1,3 @@
+usr/local/bin/collector
+usr/local/bin/filter
+etc/init/webstats-collector.conf

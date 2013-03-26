@@ -1,0 +1,8 @@
+The .deb packaging here is in no way an attempt to be good packaging.
+It is a quick and dirty pass at creating an installable webstatscollector package that is better than copying Domas' source around and installing it manually.
+
+This packaging includes an upstart script from which a collector service can be managed.  The collector service uses /a/webstats as its working directory.  It will output and create a dumps/ directory there.
+
+To build this package:
+
+rm -f ../webstatscollector_0.1.orig.tar.gz && tar -cvzf ../webstatscollector_0.1.orig.tar.gz . && debuild

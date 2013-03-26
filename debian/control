@@ -1,0 +1,13 @@
+Source: webstatscollector
+Section: unknown
+Priority: extra
+Maintainer: Andrew Otto <otto@wikimedia.org>
+Build-Depends: debhelper (>= 8.0.0), libdb4.8-dev
+Standards-Version: 3.9.2
+
+Package: webstatscollector
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Collects hourly statistics about WMF pageviews.
+ Binaries to collect hourly pageviews that are then
+ published at http://dumps.wikimedia.org/other/pageviews/.

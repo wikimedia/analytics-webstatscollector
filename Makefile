@@ -7,7 +7,7 @@
 
 #MacOSX MacPorts library paths
 CFLAGS+=-I/opt/local/include/
-LDFLAGS+=-L/opt/local/lib/ -ldb-4.3 -lpthread
+LDFLAGS+=-L/opt/local/lib/ -ldb -lpthread
 
 #LDFLAGS+=-ldb
 CFLAGS+=-Wall -g
@@ -25,3 +25,7 @@ export.o: export.c collector.h collector.c filter.c
 
 clean:
 	rm -f *.o collector filter
+
+install:
+	install collector filter $(DESTDIR)/usr/local/bin
+	install webstats-collector.upstart.conf $(DESTDIR)/etc/init/webstats-collector.conf
