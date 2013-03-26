@@ -1,0 +1,3 @@
+#!/bin/sh
+
+chown nobody:nogroup /a/webstats
