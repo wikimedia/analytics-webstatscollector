@@ -76,9 +76,9 @@ const struct project {
 		{"wikiversity",".v",NULL},
 		{"wikiquote",".q",NULL},
 		{"m.wikipedia", ".mw", NULL},
-                {"wikivoyage", ".voy", NULL},
-                {"wikimediafoundation", ".f", NULL},
-                {"wikidata", ".wd", NULL},
+            {"wikivoyage", ".voy", NULL},
+            {"wikimediafoundation", ".f", NULL},
+            {"wikidata", ".wd", NULL},
 		NULL
 	}, *project;
 
@@ -173,10 +173,14 @@ int main(int ac, char **av) {
 				FIELD; /* ??? */
 		info.ip=	FIELD; /* IP address! */
 				FIELD; /* status */
-		info.size=      FIELD; /* object size */
+		info.size=	FIELD; /* object size */
 				FIELD;
-		url=	    FIELD;
-        replace_space(url);
+		url=		FIELD;
+		if(!url       ||
+		   !info.ip   ||
+		   !info.size   )
+			continue;
+		replace_space(url);
 		if (!check_ip(info.ip))
 			continue;
 		if (!parse_url(url,&info))
