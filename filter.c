@@ -124,6 +124,11 @@ bool parse_url(char *url, struct info *in) {
 	in->language=HEAD;
 	in->project=FIELD;
 
+        if(!in->language ||
+           !in->project )
+          return false;
+
+
 	if(!strcmp(in->project,"m")) {
     	in->project = "m.wikipedia";
     	in->title = in->language;

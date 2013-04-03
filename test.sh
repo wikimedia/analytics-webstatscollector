@@ -19,4 +19,13 @@ else
   echo "Test2: Big fields in filter FAILED";
 fi
 
+TEST_PROJECT_EMPTY=`cat entry-line1.txt | ./filter | wc -l`;
 
+if [ $? -ne 139 -a $TEST_PROJECT_EMPTY -eq 0 ]; then
+  echo "Test3: in->project is empty PASSED";
+else
+  echo "Test3: in->project is empty FAILED";
+fi
+
+
+# test
