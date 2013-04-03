@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+=head1 SEGFAULT-KO v0.1
+
+So let's suppose you have a C utility that reads Squid logs and it segfaults on some entries for whatever reasons.
+This does binary search on a big stream to nail down a squid log line that causes segmentation faults
+
+=cut
+
+my $segfaulting_file = "s";
+my $L = 0;
+my $R = 7266786; #`cat $segfaulting_file | wc -l`;
+my $M;
+my $binary = "./filter";
+
+while ($L < $R) {
+  $M     = int(($L+$R)/2);
+  # head argument for right side
+  my $HL = $M;
+  # tail argument for right side
+  my $TL = $M-$L;
+  # head argument for left  side
+  my $HR = $R;
+  # tail argument for left  side
+  my $TR = $R-$M;
+
+  print "M=$M L=$L R=$R\n";
+  my $go_left ;
+  my $go_right;
+  my $cmd_R = "cat $segfaulting_file | head -$HR | tail -$TR | $binary > /dev/null;";
+  my $cmd_L = "cat $segfaulting_file | head -$HL | tail -$TL | $binary > /dev/null;";
+
+  print "\nRunning $cmd_R\n";
+  `$cmd_R`;
+  #`./a.out $M $R`;
+  print "RETVAL=$?\n";
+  $go_right = ($? > 30000); # right side caused SEGFAULT
+  `rm core`;
+  print "\nRunning $cmd_L\n";
+  `$cmd_L`;
+  print "RETVAL=$?\n";
+  #`./a.out $L $M`;
+  $go_left  = ($? > 30000); # left  side caused SEGFAULT
+  `rm core`;
+
+  if(  $L == $R ) {
+    last;
+  }elsif ( $go_left  ) {
+    print "GO left  L=$L R=$R\n";
+    $R = $M  ;
+  }elsif ( $go_right ) {
+    print "GO right L=$L R=$R\n";
+    $L = $M+1;
+  };
+};
+
+
+# the loop stopped because $L==$R==$M , so we just print out $M
+print "Segfault caused by line $M\n";
+
