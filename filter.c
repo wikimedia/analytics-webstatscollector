@@ -128,6 +128,8 @@ bool parse_url(char *url, struct info *in) {
            !in->project )
           return false;
 
+	if (!strncmp(in->title,"Special:CentralAutoLogin/", 25))
+		return false; /* Special:CentralAutoLogin/.* are no real page views.*/
 
 	if(!strcmp(in->project,"m")) {
     	in->project = "m.wikipedia";
