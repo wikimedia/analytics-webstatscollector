@@ -12,6 +12,10 @@ LDFLAGS+=-L/opt/local/lib/ -ldb -lpthread
 #LDFLAGS+=-ldb
 CFLAGS+=-Wall -g
 
+SUBDIRS=tests
+
+RECURSIVE_TARGETS = all-recursive clean-recursive check-recursive
+
 all: collector filter
 
 collector: collector.h collector.c export.c export.o
@@ -25,9 +29,18 @@ export.o: export.c collector.h collector.c filter.c
 
 clean:
 	rm -f *.o collector filter
+	$(MAKE) clean-recursive
 
 check: filter
-	@./test.sh
+	$(MAKE) check-recursive
+
+$(RECURSIVE_TARGETS):
+	list='$(SUBDIRS)' \
+	target=`echo $@ | sed s/-recursive//`; \
+	for subdir in $$list; do \
+          echo "Making $$target in $$subdir"; \
+          (cd $$subdir && $(MAKE) $$target) \
+        done; \
 
 install:
 	install collector filter $(DESTDIR)/usr/local/bin

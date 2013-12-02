@@ -1,5 +1,5 @@
 #!/bin/bash
-FILTER="./filter"
+FILTER="../filter"
 
 TEST_SPACELESS_LINES=`cat entries-with-urls-with-spaces-2013-02-10.txt | "$FILTER" | perl -MData::Dumper -ne '@f=split(/\s/,$_,4);  print if $f[3] =~ /\ /;' | wc -l`
 
