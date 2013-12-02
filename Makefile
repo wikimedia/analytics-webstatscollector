@@ -26,6 +26,9 @@ export.o: export.c collector.h collector.c filter.c
 clean:
 	rm -f *.o collector filter
 
+check: filter
+	@./test.sh
+
 install:
 	install collector filter $(DESTDIR)/usr/local/bin
 	install webstats-collector.upstart.conf $(DESTDIR)/etc/init/webstats-collector.conf
