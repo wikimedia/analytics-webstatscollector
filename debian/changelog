@@ -1,4 +1,4 @@
-webstatscollector (0.1-4) precise-wikimedia; urgency=low
+webstatscollector (0.2-1) precise-wikimedia; urgency=low
 
   * Omit hits to Special:CentralAutoLogin/.* .
 
