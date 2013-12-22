@@ -129,6 +129,13 @@ assert_not_counted "http://en.wikipedia.org/wiki/Special:CentralAutoLogin/checkL
 assert_counted     "http://en.wikipedia.org/wiki/Special:CentralAutoLogin" "en" "Special:CentralAutoLogin"
 assert_counted     "http://en.wikipedia.org/wiki/Special:CentralAutoLoginX/Countworthy" "en" "Special:CentralAutoLoginX/Countworthy"
 
+# Around Bug 58316 people asked in private whether maybe
+# webstatscollector mangles encoding. So let's make sure
+# webstatscollector does not mangle encoding.
+assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can%C3%B3' 'en' 'Robinson_Can%C3%B3'
+assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can\xC3\xB3' 'en' 'Robinson_Can\xC3\xB3'
+assert_counted     'http://en.wikipedia.org/wiki/Robinson_Canó' 'en' 'Robinson_Canó'
+
 # -- printing statistics -------------------------------------------------------
 
 TESTS_FAILED=$((TESTS-TESTS_GOOD))
