@@ -136,6 +136,24 @@ assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can%C3%B3' 'en' 'Robin
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can\xC3\xB3' 'en' 'Robinson_Can\xC3\xB3'
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Canó' 'en' 'Robinson_Canó'
 
+start_test "Internal RemoteAddr - proxied"
+TEST_INTERNAL_PROXIED=`cat entry-internal-proxied.txt | "$FILTER" | wc -l`;
+
+if [ $? -ne 139 -a $TEST_INTERNAL_PROXIED -eq 1 ]; then
+  mark_test_passed
+else
+  mark_test_failed
+fi
+
+start_test "Internal RemoteAddr - not proxied"
+TEST_INTERNAL_NOT_PROXIED=`cat entry-internal-not-proxied.txt | "$FILTER" | wc -l`;
+
+if [ $? -ne 139 -a $TEST_INTERNAL_NOT_PROXIED -eq 0 ]; then
+  mark_test_passed
+else
+  mark_test_failed
+fi
+
 # -- printing statistics -------------------------------------------------------
 
 TESTS_FAILED=$((TESTS-TESTS_GOOD))

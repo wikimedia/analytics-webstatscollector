@@ -52,14 +52,36 @@ char *dupes[] = {"208.80.152.",
 		 "91.198.174.",
 		 NULL};
 
-bool check_ip(char *ip) {
+/**
+ * Returns true if this request should be
+ * counted based on request IP and X-Forwarded-For.
+ * Returns false if the request should be
+ * discarded.
+ */
+bool check_ip(char *ip, char *xff) {
 	char **prefix=dupes;
-	for (;*prefix;prefix++) {
-		if (!strncmp(*prefix,ip,strlen(*prefix)))
-			return false;
+
+	bool ip_is_internal = false;
+	bool xff_is_set = (xff != NULL && strncmp("-",xff,1) != 0);
+
+	// Check if ip is a WMF public internal IP.
+	for (; *prefix; prefix++) {
+		if (strncmp(*prefix, ip, strlen(*prefix)) == 0) {
+			ip_is_internal = true;
+			break;
+		}
 	}
-	return true;
+
+	/* Throw away anything that is internal
+	   and does not have XFF set.  Internal
+	   requests with XFF set are most likely
+	   externally proxied requests (SSL or IPv6) */
+	if (ip_is_internal && !xff_is_set)
+		return false;
+	else
+		return true;
 }
+
 
 const struct project {
 	char *full;
@@ -169,28 +191,35 @@ int main(int ac, char **av) {
 	setgroups(1,gidlist);
 	setuid(65534);
 
-	char *undef,*ip,*url, *size;
+	char *undef, *ip, *url, *size, *xff;
 	while (fgets(line,LINESIZE-1,stdin)) {
 		bzero(&info,sizeof(info));
 		/* Tokenize the log line */
 		TOKENIZE(line,"\t"); /* server */
 				FIELD; /* id? */
 				FIELD; /* timestamp */
-				FIELD; /* ??? */
+				FIELD; /* time-to-first-byte */
 		info.ip=	FIELD; /* IP address! */
-				FIELD; /* status */
+				FIELD; /* HTTP status */
 		info.size=	FIELD; /* object size */
+				FIELD; /* HTTP method */
+		url=		FIELD; /* request URI */
 				FIELD;
-		url=		FIELD;
+				FIELD; /* content_type */
+				FIELD; /* referer */
+		xff=		FIELD; /* x-forwarded-for */
+
 		if (!url || !info.ip || !info.size)
 			continue;
+
 		replace_space(url);
-		if (!check_ip(info.ip))
+		if (!check_ip(info.ip,xff))
 			continue;
 		if (!parse_url(url,&info))
 			continue;
 		if (!check_project(&info))
 			continue;
+
 		printf("%s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
 	}
 }
