@@ -31,11 +31,14 @@ mark_test_failed() {
 set_FILTERED_OUTPUT() {
     local URL="$1"
 
+    local LOCAL_LOG_LINE_IP="${LOG_LINE_IP:-IP}"
+    unset LOG_LINE_IP
+
     local LOG_LINE="CACHE_MACHINE"
     LOG_LINE="$LOG_LINE	SEQUENCE_NUMBER"
     LOG_LINE="$LOG_LINE	TIMESTAMP"
     LOG_LINE="$LOG_LINE	DURATION"
-    LOG_LINE="$LOG_LINE	IP"
+    LOG_LINE="$LOG_LINE	$LOCAL_LOG_LINE_IP"
     LOG_LINE="$LOG_LINE	STATUS_CODE"
     LOG_LINE="$LOG_LINE	SIZE"
     LOG_LINE="$LOG_LINE	REQUEST_METHOD"
@@ -135,6 +138,60 @@ assert_counted     "http://en.wikipedia.org/wiki/Special:CentralAutoLoginX/Count
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can%C3%B3' 'en' 'Robinson_Can%C3%B3'
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can\xC3\xB3' 'en' 'Robinson_Can\xC3\xB3'
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Canó' 'en' 'Robinson_Canó'
+
+
+
+# Idiosyncrasies ---------------------------------------------------------------
+# Here, we document some idiosyncrasies of webstatscollector.
+# We might wish to change/fix them, but that would require all
+# consumers of those files to adapt their software. And it would make
+# comparison between files harder. So let's at least call them out for
+# now.
+
+# Idiosyncrasy #1 Pageviews to mobile enwiki, are only counted for
+# .mw, not for plain enwiki. And this counting is not "per page", but
+# "per language".
+
+assert_counted 'http://en.m.wikipedia.org/wiki/Idiosyncrasy/Page_on_MobileEnwikiSite_only_counted_titleless_for_en.mw' 'en.mw' 'en'
+
+# Idiosyncrasy #2 While "en.mw" might suggest to be thought of as
+# "English mobile wikipedia", it is rather "English mobile sites". So
+# it includes for example hits to enwikivoyage.
+assert_counted 'http://en.m.wikivoyage.org/wiki/Idiosyncrasy/Page_on_MobileEnwikivoyageSite_only_counted_titleless_for_en.mw' 'en.mw' 'en'
+
+# Idiosyncrasy #3 Languages in domain names are considered case
+# sensitive.
+assert_counted 'http://En.wikipedia.org/wiki/Idiosyncrasy/Case_sensitive_languages' 'En' 'Idiosyncrasy/Case_sensitive_languages'
+
+# Idiosyncrasy #4 Some internal IPv4 IPs are not counted
+# altogether. This gets in the way for SSL requests, and makes it
+# necessary that the logs from the SSL terminators get fed into the
+# filter process too.
+# First some internal IP addresses covered by 'filter'.
+LOG_LINE_IP="208.80.152.1" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.152.x'
+LOG_LINE_IP="208.80.153.2" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.153.x'
+LOG_LINE_IP="208.80.154.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.154.x'
+LOG_LINE_IP="208.80.155.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.155.x'
+LOG_LINE_IP="91.198.174.5" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/91.198.141.x'
+
+# Then some internal IP addresses not covered by 'filter'.
+LOG_LINE_IP="198.35.26.6" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered'
+LOG_LINE_IP="198.35.27.7" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/198.35.27.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/198.35.27.x_not_covered'
+LOG_LINE_IP="185.15.56.7" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/185.15.56.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/185.15.56.x_not_covered'
+LOG_LINE_IP="185.15.57.8" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/185.15.57.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/185.15.57.x_not_covered'
+LOG_LINE_IP="185.15.58.9" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/185.15.58.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/185.15.58.x_not_covered'
+LOG_LINE_IP="185.15.59.10" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/185.15.59.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/185.15.59.x_not_covered'
+LOG_LINE_IP="2620:0:860::11" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/2620:0:860::_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/2620:0:860::_not_covered'
+LOG_LINE_IP="2a02:ec80::12" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/2a02:ec80::_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/2a02:ec80::_not_covered'
+
+# Idiosyncrasy #5 Pages are only counted through '/wiki' URLs.
+# 'index.php' is not counted.
+assert_not_counted 'http://en.wikipedia.org/w/index.php?title=Main_Page'
+
+# Idiosyncrasy #6 Zero does not get counted at all
+assert_not_counted 'http://en.zero.wikipedia.org/wiki/Main_Page'
+
+
 
 # -- printing statistics -------------------------------------------------------
 
