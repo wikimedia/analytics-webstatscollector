@@ -20,7 +20,14 @@ mark_test_passed() {
 }
 
 mark_test_failed() {
-    echo "FAIL!"
+    local REASON="$1"
+    if [ ! -z "$REASON" ]
+    then
+        REASON=" ($REASON)"
+    fi
+
+    echo "FAIL!$REASON"
+
     if [ -z "$FIRST_FAILED_TEST_NAME" ]
     then
 	FIRST_FAILED_TEST_NAME="$CURRENT_TEST_NAME"
@@ -65,11 +72,12 @@ assert_counted() {
     local FILTERED_OUTPUT=
     set_FILTERED_OUTPUT "$URL" "$@"
 
-    if [ "$FILTERED_OUTPUT" = "$COUNTED_PROJECT 1 SIZE $COUNTED_PAGE" ]
+    local EXPECTED_OUTPUT="$COUNTED_PROJECT 1 SIZE $COUNTED_PAGE"
+    if [ "$FILTERED_OUTPUT" = "$EXPECTED_OUTPUT" ]
     then
 	mark_test_passed
     else
-	mark_test_failed
+	mark_test_failed "Expected output: '$EXPECTED_OUTPUT'. Actual output: '$FILTERED_OUTPUT'"
     fi
 }
 
@@ -87,7 +95,7 @@ assert_not_counted() {
     then
 	mark_test_passed
     else
-	mark_test_failed
+	mark_test_failed "Expected to be not counted, but counted as '$FILTERED_OUTPUT'"
     fi
 }
 
