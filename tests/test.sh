@@ -181,6 +181,7 @@ LOG_LINE_IP="208.80.153.2" ; assert_not_counted 'http://en.wikipedia.org/wiki/Id
 LOG_LINE_IP="208.80.154.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.154.x'
 LOG_LINE_IP="208.80.155.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.155.x'
 LOG_LINE_IP="91.198.174.5" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/91.198.141.x'
+LOG_LINE_IP="10.128.0.108" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/10.128.0.x'
 
 # Then some internal IP addresses not covered by 'filter'.
 LOG_LINE_IP="198.35.26.6" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered'
