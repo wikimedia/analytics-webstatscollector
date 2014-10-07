@@ -1,3 +1,10 @@
+webstatscollector (0.4-1) precise-wikimedia; urgency=low
+
+  * Stop counting requests for undefined and Undefined.
+  * Stop counting redirects.
+
+ -- Christian Aistleitner <christian@quelltextlich.at>  Wed, 8 Oct 2014 21:36:51 +0000
+
 webstatscollector (0.3-1) precise-wikimedia; urgency=low
 
   * Omit requests from ULSFO internal IPs.
