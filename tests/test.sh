@@ -147,6 +147,17 @@ assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can%C3%B3' 'en' 'Robin
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Can\xC3\xB3' 'en' 'Robinson_Can\xC3\xB3'
 assert_counted     'http://en.wikipedia.org/wiki/Robinson_Canó' 'en' 'Robinson_Canó'
 
+#(Bug 66352) Requests for “undefined" and "Undefined" are fo the by
+#far biggest part artifacts of JavaScript issues, so we no longer
+#count them.
+assert_not_counted     'http://en.wikipedia.org/wiki/undefined'
+assert_not_counted     'http://en.wikipedia.org/wiki/Undefined'
+assert_counted     'http://en.wikipedia.org/wiki/UndefinedFoo' 'en' 'UndefinedFoo'
+assert_counted     'http://en.wikipedia.org/wiki/FooUndefined' 'en' 'FooUndefined'
+assert_not_counted     'http://en.m.wikipedia.org/wiki/undefined'
+assert_not_counted     'http://en.m.wikipedia.org/wiki/Undefined'
+assert_counted     'http://en.m.wikipedia.org/wiki/UndefinedFoo' 'en.mw' 'en'
+assert_counted     'http://en.m.wikipedia.org/wiki/FooUndefined' 'en.mw' 'en'
 
 
 # Idiosyncrasies ---------------------------------------------------------------

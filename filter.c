@@ -132,6 +132,12 @@ bool parse_url(char *url, struct info *in) {
 	if (!strncmp(in->title,"Special:CentralAutoLogin/", 25))
 		return false; /* Special:CentralAutoLogin/.* are no real page views.*/
 
+	if (!strcmp(in->title,"undefined"))
+		return false; /* undefined is typically an JavaScript artifact. */
+
+	if (!strcmp(in->title,"Undefined"))
+		return false; /* Undefined is typically a redirect "undefined" */
+
 	if (!strcmp(in->project,"m")) {
 		in->project = "m.wikipedia";
 		in->title = in->language;
