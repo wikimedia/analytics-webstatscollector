@@ -4,7 +4,10 @@
 
 LDLIBS+=-ldb -lpthread
 
-CFLAGS+=-Wall -g
+CFLAGS+=-Wall
+# To get debug information into the executables, uncomment the
+# following line
+#CFLAGS+=-g
 
 SUBDIRS=tests
 
@@ -13,13 +16,8 @@ RECURSIVE_TARGETS = all-recursive clean-recursive check-recursive
 all: collector filter
 
 collector: collector.h collector.c export.o
-	gcc -o collector collector.c export.o -ldb -lpthread
-
-filter: filter.c
-	gcc -o filter filter.c
 
 export.o: export.c collector.h
-	gcc -c -o export.o export.c
 
 clean:
 	$(RM) *.o collector filter
