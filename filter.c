@@ -65,6 +65,19 @@ bool check_ip(char *ip) {
 	return true;
 }
 
+bool check_status(char *status) {
+	// We omit 301, 302, and 303 HTTP status codes as they are redirects.
+	char *pch;
+	if ((pch = strstr(status, "/30"))) {
+		// Since pch contains at least "/30" and stats is zero-terminated,
+		// increasing it by 3 characters is save. It might point to 0, but
+		// cannot point outside of ”status”.
+		char final_digit = *(pch+3);
+		return (final_digit < '1' || '3' < final_digit);
+	}
+	return true;
+}
+
 const struct project {
 	char *full;
 	char *suffix;
@@ -180,6 +193,7 @@ int main(int ac, char **av) {
 	setuid(65534);
 
 	char *url;
+	char *status;
 	while (fgets(line,LINESIZE-1,stdin)) {
 		bzero(&info,sizeof(info));
 		/* Tokenize the log line */
@@ -188,14 +202,16 @@ int main(int ac, char **av) {
 				FIELD; /* timestamp */
 				FIELD; /* ??? */
 		info.ip=	FIELD; /* IP address! */
-				FIELD; /* status */
+		status=	FIELD; /* status */
 		info.size=	FIELD; /* object size */
 				FIELD;
 		url=		FIELD;
-		if (!url || !info.ip || !info.size)
+		if (!url || !status || !info.ip || !info.size)
 			continue;
 		replace_space(url);
 		if (!check_ip(info.ip))
+			continue;
+		if (!check_status(status))
 			continue;
 		if (!parse_url(url,&info))
 			continue;

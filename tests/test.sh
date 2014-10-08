@@ -41,12 +41,15 @@ set_FILTERED_OUTPUT() {
     local LOCAL_LOG_LINE_IP="${LOG_LINE_IP:-IP}"
     unset LOG_LINE_IP
 
+    local LOCAL_LOG_LINE_STATUS="${LOG_LINE_STATUS:-STATUS}"
+    unset LOG_LINE_STATUS
+
     local LOG_LINE="CACHE_MACHINE"
     LOG_LINE="$LOG_LINE	SEQUENCE_NUMBER"
     LOG_LINE="$LOG_LINE	TIMESTAMP"
     LOG_LINE="$LOG_LINE	DURATION"
     LOG_LINE="$LOG_LINE	$LOCAL_LOG_LINE_IP"
-    LOG_LINE="$LOG_LINE	STATUS_CODE"
+    LOG_LINE="$LOG_LINE	$LOCAL_LOG_LINE_STATUS"
     LOG_LINE="$LOG_LINE	SIZE"
     LOG_LINE="$LOG_LINE	REQUEST_METHOD"
     LOG_LINE="$LOG_LINE	$URL"
@@ -164,6 +167,24 @@ assert_counted     'http://commons.wikimedia.org/wiki/Foo' 'commons.m' 'Foo'
 assert_not_counted 'http://foo.wikimedia.org/wiki/Foo'
 assert_counted     'http://www.wikidata.org/wiki/Foo' 'www.wd' 'Foo'
 assert_not_counted 'http://foo.bar.org/wiki/Baz'
+
+# Status codes
+LOG_LINE_STATUS="hit/200"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/200'  'en' 'hit/200'
+LOG_LINE_STATUS="miss/200" ; assert_counted 'http://en.wikipedia.org/wiki/miss/200' 'en' 'miss/200'
+LOG_LINE_STATUS="pass/200" ; assert_counted 'http://en.wikipedia.org/wiki/pass/200' 'en' 'pass/200'
+LOG_LINE_STATUS="hit/206"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/206'  'en' 'hit/206'
+LOG_LINE_STATUS="hit/300"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/300'  'en' 'hit/300'
+LOG_LINE_STATUS="hit/301"  ; assert_not_counted 'http://en.wikipedia.org/wiki/hit/301'
+LOG_LINE_STATUS="hit/302"  ; assert_not_counted 'http://en.wikipedia.org/wiki/hit/302'
+LOG_LINE_STATUS="hit/303"  ; assert_not_counted 'http://en.wikipedia.org/wiki/hit/303'
+LOG_LINE_STATUS="hit/304"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/304'  'en' 'hit/304'
+LOG_LINE_STATUS="hit/305"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/305'  'en' 'hit/305'
+LOG_LINE_STATUS="hit/400"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/400'  'en' 'hit/400'
+LOG_LINE_STATUS="hit/401"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/401'  'en' 'hit/401'
+LOG_LINE_STATUS="hit/402"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/402'  'en' 'hit/402'
+LOG_LINE_STATUS="hit/403"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/403'  'en' 'hit/403'
+LOG_LINE_STATUS="hit/404"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/404'  'en' 'hit/404'
+LOG_LINE_STATUS="hit/405"  ; assert_counted 'http://en.wikipedia.org/wiki/hit/405'  'en' 'hit/405'
 
 
 # Idiosyncrasies ---------------------------------------------------------------
