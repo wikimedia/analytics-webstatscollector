@@ -171,7 +171,7 @@ bool check_project(struct info *in) {
 
 int main(int ac, char **av) {
 	char line[LINESIZE];
-	int gidlist[] = {65534};
+	__gid_t gidlist[] = {65534};
 
 	chroot("/tmp/");
 	chdir("/");
