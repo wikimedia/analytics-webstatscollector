@@ -159,6 +159,12 @@ assert_not_counted     'http://en.m.wikipedia.org/wiki/Undefined'
 assert_counted     'http://en.m.wikipedia.org/wiki/UndefinedFoo' 'en.mw' 'en'
 assert_counted     'http://en.m.wikipedia.org/wiki/FooUndefined' 'en.mw' 'en'
 
+# Project extraction
+assert_counted     'http://commons.wikimedia.org/wiki/Foo' 'commons.m' 'Foo'
+assert_not_counted 'http://foo.wikimedia.org/wiki/Foo'
+assert_counted     'http://www.wikidata.org/wiki/Foo' 'www.wd' 'Foo'
+assert_not_counted 'http://foo.bar.org/wiki/Baz'
+
 
 # Idiosyncrasies ---------------------------------------------------------------
 # Here, we document some idiosyncrasies of webstatscollector.

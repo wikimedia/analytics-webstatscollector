@@ -83,7 +83,7 @@ const struct project {
 		{"wikivoyage", ".voy", NULL},
 		{"wikimediafoundation", ".f", NULL},
 		{"wikidata", ".wd", NULL},
-		NULL
+		{NULL, NULL, NULL}
 	}, *project;
 
 struct info {
