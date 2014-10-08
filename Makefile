@@ -7,7 +7,9 @@
 
 #MacOSX MacPorts library paths
 CFLAGS+=-I/opt/local/include/
-LDFLAGS+=-L/opt/local/lib/ -ldb -lpthread
+LDFLAGS+=-L/opt/local/lib/
+
+LDLIBS+=-ldb -lpthread
 
 #LDFLAGS+=-ldb
 CFLAGS+=-Wall -g
