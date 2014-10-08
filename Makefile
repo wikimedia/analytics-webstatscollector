@@ -4,7 +4,6 @@
 
 LDLIBS+=-ldb -lpthread
 
-#LDFLAGS+=-ldb
 CFLAGS+=-Wall -g
 
 SUBDIRS=tests
