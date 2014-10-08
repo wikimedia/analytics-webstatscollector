@@ -12,13 +12,13 @@ RECURSIVE_TARGETS = all-recursive clean-recursive check-recursive
 
 all: collector filter
 
-collector: collector.h collector.c export.c export.o
+collector: collector.h collector.c export.o
 	gcc -o collector collector.c export.o -ldb -lpthread
 
 filter: filter.c
 	gcc -o filter filter.c
 
-export.o: export.c collector.h collector.c filter.c
+export.o: export.c collector.h
 	gcc -c -o export.o export.c
 
 clean:
