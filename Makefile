@@ -28,7 +28,7 @@ export.o: export.c collector.h collector.c filter.c
 	gcc -c -o export.o export.c
 
 clean:
-	rm -f *.o collector filter
+	$(RM) *.o collector filter
 	$(MAKE) clean-recursive
 
 check: filter
