@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <grp.h>
 #include <stdbool.h>
 
 /*
