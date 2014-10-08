@@ -4,7 +4,7 @@
 
 LDLIBS+=-ldb -lpthread
 
-CFLAGS+=-Wall
+CFLAGS+=-Wall -O2
 # To get debug information into the executables, uncomment the
 # following line
 #CFLAGS+=-g
