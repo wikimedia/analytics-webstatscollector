@@ -111,7 +111,7 @@ void replace_space(char *url) {
 bool parse_url(char *url, struct info *in) {
 	if (!url)
 		return false;
-	char *host, *lang, *project, *dir;
+	char *host, *dir;
 
 	TOKENIZE(url,"/"); /* http: */
 	host=FIELD;
@@ -178,7 +178,7 @@ int main(int ac, char **av) {
 	setgroups(1,gidlist);
 	setuid(65534);
 
-	char *undef,*ip,*url, *size;
+	char *url;
 	while (fgets(line,LINESIZE-1,stdin)) {
 		bzero(&info,sizeof(info));
 		/* Tokenize the log line */
