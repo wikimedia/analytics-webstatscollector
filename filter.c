@@ -203,4 +203,5 @@ int main(int ac, char **av) {
 			continue;
 		printf("%s%s 1 %s %s\n",info.language, info.suffix, info.size, info.title);
 	}
+	return 0;
 }
