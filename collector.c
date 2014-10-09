@@ -129,7 +129,7 @@ void handleMessage(char *buf,ssize_t l) {
 	char *p,*pp;
 	char project[128];
 	char title[1024];
-	char keytext[1200];
+	char keytext[1499];
 	int r;
 	
 	unsigned long long serial;
