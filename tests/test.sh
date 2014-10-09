@@ -144,6 +144,9 @@ test_collector() {
     pushd "$TEST_TMP_DIR_ABS" >/dev/null
     mkdir dumps
 
+    local COLLECTOR_STDOUT_FILE_ABS="$TEST_TMP_DIR_ABS/collector.stdout"
+    local COLLECTOR_STDERR_FILE_ABS="$TEST_TMP_DIR_ABS/collector.stderr"
+
     local FAILURE=""
 
     # The collector will dump on the full hour. So if we're susciciously close
@@ -154,7 +157,7 @@ test_collector() {
     fi
 
     # start collector
-    "$SCRIPT_DIR_ABS/$COLLECTOR" &>/dev/null &
+    "$SCRIPT_DIR_ABS/$COLLECTOR" >"$COLLECTOR_STDOUT_FILE_ABS" 2>"$COLLECTOR_STDERR_FILE_ABS" &
     local COLLECTOR_PID=$!
 
     local COLLECTOR_FD="/dev/udp/127.0.0.1/$COLLECTOR_PORT"
@@ -195,6 +198,24 @@ test_collector() {
         if ! diff -Naur dumps/projectcounts-* "$EXPECTED_PROJECTCOUNTS_FILE_ABS"
         then
             FAILURE="Projectcounts files do not match"
+        fi
+    fi
+
+    # Checking collector's stdout
+    if [ -z "$FAILURE" ]
+    then
+        if [ -s "$COLLECTOR_STDOUT_FILE_ABS" ]
+        then
+            FAILURE="collector's stdout was not empty."
+        fi
+    fi
+
+    # Checking collector's stderr
+    if [ -z "$FAILURE" ]
+    then
+        if [ "$(grep -v '^\.temp\.db: unable to flush page: 1$' $COLLECTOR_STDERR_FILE_ABS | wc -l)" != 0 ]
+        then
+            FAILURE="collector's stderr contained uncanny lines."
         fi
     fi
 
