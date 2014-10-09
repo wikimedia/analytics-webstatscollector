@@ -1,6 +1,7 @@
 #!/bin/bash
 FILTER="../filter"
 COLLECTOR="../collector"
+COLLECTOR_PORT="3815" # currently hardcoded in collector.c
 
 TESTS=0
 TESTS_GOOD=0
@@ -132,6 +133,12 @@ test_collector() {
         return
     fi
 
+    if [ "$(netstat --udp --listening --numeric | sed -e 's/^[^:]*:\([0-9]*\) .*/\1/' | grep -c "^$COLLECTOR_PORT\$")" != "0" ]
+    then
+        mark_test_failed "It seems another process is already listening on UDP-Port $COLLECTOR_PORT, so I cannot run collector tests"
+        return
+    fi
+
     # Setup test directory
     local TEST_TMP_DIR_ABS="$(mktemp --directory --tmpdir webstatscollector-tests.XXXXXX)"
     pushd "$TEST_TMP_DIR_ABS" >/dev/null
@@ -150,7 +157,7 @@ test_collector() {
     "$SCRIPT_DIR_ABS/$COLLECTOR" &>/dev/null &
     local COLLECTOR_PID=$!
 
-    local COLLECTOR_FD="/dev/udp/127.0.0.1/3815"
+    local COLLECTOR_FD="/dev/udp/127.0.0.1/$COLLECTOR_PORT"
 
     # Give some time for collector to start
     sleep 2s
