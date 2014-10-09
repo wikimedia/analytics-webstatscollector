@@ -152,10 +152,13 @@ test_collector() {
 
     local COLLECTOR_FD="/dev/udp/127.0.0.1/3815"
 
+    # Give some time for collector to start
+    sleep 2s
+
     # Feed the input and force a dump
     cat <"$INPUT_FILE_ABS" >"$COLLECTOR_FD"
     echo -e "\n-produceDump" >"$COLLECTOR_FD"
-    sleep 2s
+    sleep 5s
 
     # Tear down the collector
     kill "$COLLECTOR_PID"
