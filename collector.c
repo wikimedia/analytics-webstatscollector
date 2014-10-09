@@ -144,9 +144,17 @@ void handleMessage(char *buf,ssize_t l) {
 	while((p=strsep(&pp,"\r\n"))) {
 		if (p[0]=='\0')
 			continue;
-		if (!strcmp("-truncate",p)) {
-			truncatedb();
-			return;
+		// To avoid doing many strcmps, we to a pre-check that will
+		// short-circuit the strcmps if they cannot match anyways.
+		if (p[0]=='-') {
+			if (!strcmp("-truncate",p)) {
+				truncatedb();
+				return;
+			}
+			if (!strcmp("-produceDump",p)) {
+				produceDump();
+				return;
+			}
 		}
 		bzero(&incoming,sizeof(incoming));
 		r=sscanf(p,msgformat,&serial,(char *)&project,

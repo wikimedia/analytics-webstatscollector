@@ -1,5 +1,6 @@
 #!/bin/bash
 FILTER="../filter"
+COLLECTOR="../collector"
 
 TESTS=0
 TESTS_GOOD=0
@@ -99,6 +100,104 @@ assert_not_counted() {
 	mark_test_passed
     else
 	mark_test_failed "Expected to be not counted, but counted as '$FILTERED_OUTPUT'"
+    fi
+}
+
+test_collector() {
+    local COLLECTOR_TEST_SPEC_DIR_RELS="$1"
+    start_test "$COLLECTOR_TEST_SPEC_DIR_RELS"
+
+    local SCRIPT_DIR_ABS="$(pwd)"
+    local COLLECTOR_TEST_SPEC_DIR_ABS="$SCRIPT_DIR_ABS/$COLLECTOR_TEST_SPEC_DIR_RELS"
+    local INPUT_FILE_ABS="$COLLECTOR_TEST_SPEC_DIR_ABS/input"
+    local EXPECTED_PAGECOUNTS_FILE_ABS="$COLLECTOR_TEST_SPEC_DIR_ABS/expected.pagecounts"
+    local EXPECTED_PROJECTCOUNTS_FILE_ABS="$COLLECTOR_TEST_SPEC_DIR_ABS/expected.projectcounts"
+
+    # Checking if the test specification files exist
+    if [ ! -e "$INPUT_FILE_ABS" ]
+    then
+        mark_test_failed "The input file '$INPUT_FILE_ABS' does not exist"
+        return
+    fi
+
+    if [ ! -e "$EXPECTED_PAGECOUNTS_FILE_ABS" ]
+    then
+        mark_test_failed "The expected pagecounts file '$EXPECTED_PAGECOUNTS_FILE_ABS' does not exist"
+        return
+    fi
+
+    if [ ! -e "$EXPECTED_PROJECTCOUNTS_FILE_ABS" ]
+    then
+        mark_test_failed "The expected projectcounts file '$EXPECTED_PROJECTCOUNTS_FILE_ABS' does not exist"
+        return
+    fi
+
+    # Setup test directory
+    local TEST_TMP_DIR_ABS="$(mktemp --directory --tmpdir)"
+    pushd "$TEST_TMP_DIR_ABS" >/dev/null
+    mkdir dumps
+
+    local FAILURE=""
+
+    # The collector will dump on the full hour. So if we're susciciously close
+    # to that, we back off for a bit, to avoid unwarranted dumping.
+    if [ $(date +1%M%S) -gt 15955 ]
+    then
+        sleep 6s
+    fi
+
+    # start collector
+    "$SCRIPT_DIR_ABS/$COLLECTOR" &>/dev/null &
+    local COLLECTOR_PID=$!
+
+    local COLLECTOR_FD="/dev/udp/127.0.0.1/3815"
+
+    # Feed the input and force a dump
+    cat <"$INPUT_FILE_ABS" >"$COLLECTOR_FD"
+    echo -e "\n-produceDump" >"$COLLECTOR_FD"
+    sleep 2s
+
+    # Tear down the collector
+    kill "$COLLECTOR_PID"
+    sleep 0.1s
+    if [ -e "/proc/$COLLECTOR_PID" ]
+    then
+        sleep 0.4s
+        if [ -e "/proc/$COLLECTOR_PID" ]
+        then
+            kill -9 "$COLLECTOR_PID"
+            FAILURE="Collector did not exit within 0.5s"
+        fi
+    fi
+
+    # Checking pagecounts file
+    if [ -z "$FAILURE" ]
+    then
+        if ! diff -Naur dumps/pagecounts-* "$EXPECTED_PAGECOUNTS_FILE_ABS"
+        then
+            FAILURE="Pagecounts files do not match"
+        fi
+    fi
+
+    # Checking projectcounts file
+    if [ -z "$FAILURE" ]
+    then
+        if ! diff -Naur dumps/projectcounts-* "$EXPECTED_PROJECTCOUNTS_FILE_ABS"
+        then
+            FAILURE="Projectcounts files do not match"
+        fi
+    fi
+
+    # Cleanup
+    popd >/dev/null
+    rm -rf "$TEST_TMP_DIR_ABS"
+
+    # Flagging test status
+    if [ -z "$FAILURE" ]
+    then
+        mark_test_passed
+    else
+        mark_test_failed "$FAILURE"
     fi
 }
 
@@ -239,6 +338,13 @@ assert_not_counted 'http://en.wikipedia.org/w/index.php?title=Main_Page'
 assert_not_counted 'http://en.zero.wikipedia.org/wiki/Main_Page'
 
 
+
+# -- Finally, some collector checks --------------------------------------------
+
+for COLLECTOR_TEST_SPEC_DIR_RELS in collector-tests/*
+do
+    test_collector "$COLLECTOR_TEST_SPEC_DIR_RELS"
+done
 
 # -- printing statistics -------------------------------------------------------
 

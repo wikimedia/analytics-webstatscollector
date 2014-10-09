@@ -25,7 +25,7 @@ clean:
 	$(RM) *.o collector filter
 	$(MAKE) clean-recursive
 
-check: filter
+check: filter collector
 	$(MAKE) check-recursive
 
 $(RECURSIVE_TARGETS):
