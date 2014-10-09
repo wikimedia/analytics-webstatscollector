@@ -20,24 +20,24 @@
 void dumpData(FILE *fd, DB *db) {
 	DBT key,data;
 	DBC *c;
-	
+
 	char *p,*project,*page;
 
 	struct wcstats *entry;
 
 	bzero(&key,sizeof(key));
 	bzero(&data,sizeof(data));
-	
+
 	db->cursor(db,NULL,&c,0);
 	while(c->c_get(c, &key, &data, DB_NEXT )==0) {
 		entry=data.data;
 		p=key.data;
-		/* project points to project! */	
+		/* project points to project! */
 		project=strsep(&p,":");
-		
+
 		/* Can just use p afterwards, but properly named variable sometimes helps */
 		page=p;
-		
+
 		/* Get EVENT */
 		fprintf(fd,"%s %s %llu %llu\n",
 				project,(page?page:"-"),
