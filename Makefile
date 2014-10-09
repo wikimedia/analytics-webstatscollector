@@ -15,7 +15,9 @@ RECURSIVE_TARGETS = all-recursive clean-recursive check-recursive
 
 all: collector filter
 
-collector: collector.h collector.c export.o
+collector.o: collector.c collector.h
+
+collector: collector.o export.o
 
 export.o: export.c collector.h
 
