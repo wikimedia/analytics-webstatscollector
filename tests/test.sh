@@ -133,7 +133,7 @@ test_collector() {
     fi
 
     # Setup test directory
-    local TEST_TMP_DIR_ABS="$(mktemp --directory --tmpdir)"
+    local TEST_TMP_DIR_ABS="$(mktemp --directory --tmpdir webstatscollector-tests.XXXXXX)"
     pushd "$TEST_TMP_DIR_ABS" >/dev/null
     mkdir dumps
 
