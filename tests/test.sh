@@ -368,6 +368,11 @@ assert_not_counted 'http://en.wikipedia.org/w/index.php?title=Main_Page'
 # Idiosyncrasy #6 Zero does not get counted at all
 assert_not_counted 'http://en.zero.wikipedia.org/wiki/Main_Page'
 
+# Idiosyncrasy #7 Desktop site for wikimediafoundation.org does not
+# get counted, as it is language-less. Mobile site does get counted
+# however, with "m" as language.
+assert_not_counted 'http://wikimediafoundation.org/wiki/Home'
+assert_counted 'http://m.wikimediafoundation.org/wiki/Home' 'm.f' 'Home'
 
 
 # -- Finally, some collector checks --------------------------------------------
