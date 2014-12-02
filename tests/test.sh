@@ -350,6 +350,9 @@ LOG_LINE_IP="208.80.154.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Id
 LOG_LINE_IP="208.80.155.3" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/208.80.155.x'
 LOG_LINE_IP="91.198.174.5" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/91.198.141.x'
 LOG_LINE_IP="10.128.0.108" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/10.128.0.x'
+LOG_LINE_IP="10.20.0.109" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/10.20.0.x/cp3013-cp3018__amssq31-amssq47'
+LOG_LINE_IP="10.64.0.110" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/10.64.0.x/cp1059-cp1068'
+LOG_LINE_IP="10.64.32.111" ; assert_not_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/10.64.32.x/cp1046-cp1055'
 
 # Then some internal IP addresses not covered by 'filter'.
 LOG_LINE_IP="198.35.26.6" ; assert_counted 'http://en.wikipedia.org/wiki/Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered' 'en' 'Idiosyncrasy/Do_not_count_internal/198.35.26.x_not_covered'
