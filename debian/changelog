@@ -1,3 +1,9 @@
+webstatscollector (0.5-1) precise-wikimedia; urgency=low
+
+  * Ignore traffic from cache-local SSL terminators.
+
+ -- Andrew Otto (WMF) <otto@wikimedia.org>  Wed, 03 Dec 2014 21:18:43 +0000
+
 webstatscollector (0.4-1) precise-wikimedia; urgency=low
 
   * Stop counting requests for undefined and Undefined.
